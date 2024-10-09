@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.dljl.mapper.AppointmentMapper">
+  <resultMap id="appointmentResultMap" type="org.dljl.entity.Appointment">
+    <id property="id" column="id"/>
+    <result property="providerId" column="provider_id"/>
+    <result property="userId" column="user_id"/>
+    <result property="description" column="description"/>
+    <result property="appointmentDateTime" column="appointment_date_time"/>
+    <result property="status" column="status"/>
+  </resultMap>
+
+  <select id="getAppointmentById" resultMap="appointmentResultMap">
+    SELECT * FROM appointments WHERE id = #{id}
+  </select>
+</mapper>
