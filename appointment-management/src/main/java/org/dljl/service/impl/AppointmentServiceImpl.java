@@ -39,4 +39,8 @@ public class AppointmentServiceImpl implements AppointmentService {
   public void deleteAppointment(Long id) {
     appointmentMapper.deleteAppointment(id);
   }
+  @Override
+  public List<Appointment> getAppointmentHistory(Long providerId, Long userId) {
+    return appointmentMapper.findAppointmentsByProviderAndUser(providerId, userId);
+  }
 }

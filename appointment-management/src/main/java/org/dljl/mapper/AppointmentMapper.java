@@ -23,4 +23,9 @@ public interface AppointmentMapper {
 
   @Select("SELECT * FROM appointments WHERE provider_id = #{providerId}")
   List<Appointment> getAppointmentsByProviderId(Long providerId);
+
+  @Select("SELECT appointment_id, appointment_date_time, status, service_type, comments " +
+    "FROM appointments " +
+    "WHERE provider_id = #{providerId} AND user_id = #{userId}")
+  List<Appointment> findAppointmentsByProviderAndUser(@Param("providerId") Long providerId, @Param("userId") Long userId);
 }
