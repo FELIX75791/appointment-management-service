@@ -14,4 +14,6 @@ public interface AppointmentService {
   Appointment updateAppointment(Appointment appointment);
 
   void deleteAppointment(Long id);
+
+  List<Appointment> getAppointmentHistory(Long providerId, Long userId);
 }
