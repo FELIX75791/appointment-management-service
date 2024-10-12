@@ -1,6 +1,8 @@
 package org.dljl.controller;
 
 import java.util.List;
+import org.dljl.dto.CreateAppointmentDTO;
+import org.dljl.dto.UpdateAppointmentDTO;
 import org.dljl.entity.Appointment;
 import org.dljl.service.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,31 +31,51 @@ public class AppointmentController {
   @Autowired
   private AppointmentService appointmentService;
 
+  // Create a new appointment
   @PostMapping
-  public Appointment createAppointment(@RequestBody Appointment appointment) {
-    return appointmentService.createAppointment(appointment);
+  public ResponseEntity<Appointment> createAppointment(@RequestBody CreateAppointmentDTO appointmentDTO) {
+    Appointment createdAppointment = appointmentService.createAppointment(appointmentDTO);
+    return ResponseEntity.ok(createdAppointment);
   }
 
+  // Update an appointment
+  @PutMapping("/update")
+  public ResponseEntity<Appointment> updateAppointment(@RequestBody UpdateAppointmentDTO appointmentDTO) {
+    try {
+      Appointment updatedAppointment = appointmentService.updateAppointment(appointmentDTO);
+      return ResponseEntity.ok(updatedAppointment);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(null);
+    }
+  }
+
+  // Cancel an appointment
+  @PutMapping("/cancel/{id}")
+  public ResponseEntity<String> cancelAppointment(@PathVariable Long id) {
+    boolean isCancelled = appointmentService.cancelAppointment(id);
+    if (isCancelled) {
+      return ResponseEntity.ok("Appointment cancelled successfully.");
+    } else {
+      return ResponseEntity.badRequest().body("Appointment not found or already cancelled.");
+    }
+  }
+
+  // Get an appointment by ID
   @GetMapping("/{id}")
-  public Appointment getAppointmentById(@PathVariable Long id) {
-    return appointmentService.getAppointmentById(id);
+  public ResponseEntity<Appointment> getAppointment(@PathVariable Long id) {
+    Appointment appointment = appointmentService.getAppointment(id);
+    if (appointment != null) {
+      return ResponseEntity.ok(appointment);
+    } else {
+      return ResponseEntity.notFound().build();
+    }
   }
 
+  // Get appointments by provider ID
   @GetMapping("/provider/{providerId}")
-  public List<Appointment> getAppointmentsByProvider(@PathVariable Long providerId) {
-    return appointmentService.getAppointmentsByProviderId(providerId);
-  }
-
-  @PutMapping("/{id}")
-  public Appointment updateAppointment(@PathVariable Long id,
-                                       @RequestBody Appointment appointment) {
-    appointment.setId(id);
-    return appointmentService.updateAppointment(appointment);
-  }
-
-  @DeleteMapping("/{id}")
-  public void deleteAppointment(@PathVariable Long id) {
-    appointmentService.deleteAppointment(id);
+  public ResponseEntity<List<Appointment>> getAppointmentsByProviderId(@PathVariable Long providerId) {
+    List<Appointment> appointments = appointmentService.getAppointmentsByProviderId(providerId);
+    return ResponseEntity.ok(appointments);
   }
 
   public ResponseEntity<List<Map<String, Object>>> getAppointmentHistory(
