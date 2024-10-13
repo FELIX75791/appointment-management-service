@@ -111,7 +111,8 @@ public class AppointmentController {
     List<Map<String, Object>> response = appointmentHistory.stream().map(appointment -> {
       Map<String, Object> appointmentDetails = new HashMap<>();
       appointmentDetails.put("Appointment ID", appointment.getAppointmentId());
-      appointmentDetails.put("Date and Time", appointment.getAppointmentDateTime());
+      appointmentDetails.put("Start Date and Time", appointment.getStartDateTime());
+      appointmentDetails.put("End Date and Time", appointment.getEndDateTime());
       appointmentDetails.put("Status", appointment.getStatus());
       appointmentDetails.put("Service Type", appointment.getServiceType());
       appointmentDetails.put("Comments", appointment.getComments());
