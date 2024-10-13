@@ -1,5 +1,6 @@
 package org.dljl.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import org.dljl.dto.CreateAppointmentDTO;
 import org.dljl.dto.UpdateAppointmentDTO;
@@ -8,6 +9,8 @@ import org.dljl.mapper.AppointmentMapper;
 import org.dljl.service.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
@@ -17,6 +20,17 @@ public class AppointmentServiceImpl implements AppointmentService {
 
   @Override
   public Appointment createAppointment(CreateAppointmentDTO appointmentDTO) {
+
+    int conflictCount = appointmentMapper.checkTimeConflict(
+            appointmentDTO.getProviderId(),
+            appointmentDTO.getStartDateTime().truncatedTo(ChronoUnit.SECONDS),
+            appointmentDTO.getEndDateTime().truncatedTo(ChronoUnit.SECONDS)
+    );
+
+    if (conflictCount != 0) {
+      throw new IllegalArgumentException("The selected time slot conflicts with an existing appointment.");
+    }
+
     Appointment appointment = new Appointment();
     appointment.setProviderId(appointmentDTO.getProviderId());
     appointment.setUserId(appointmentDTO.getUserId());

@@ -34,8 +34,12 @@ public class AppointmentController {
   // Create a new appointment
   @PostMapping
   public ResponseEntity<Appointment> createAppointment(@RequestBody CreateAppointmentDTO appointmentDTO) {
-    Appointment createdAppointment = appointmentService.createAppointment(appointmentDTO);
-    return ResponseEntity.ok(createdAppointment);
+    try {
+      Appointment createdAppointment = appointmentService.createAppointment(appointmentDTO);
+      return ResponseEntity.ok(createdAppointment);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(null);
+    }
   }
 
   // Update an appointment

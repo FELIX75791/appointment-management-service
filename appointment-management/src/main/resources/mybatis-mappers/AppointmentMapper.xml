@@ -20,7 +20,7 @@
   <!-- Create a new appointment and get the auto-generated appointmentId -->
   <insert id="createAppointment" parameterType="org.dljl.entity.Appointment" useGeneratedKeys="true" keyProperty="appointmentId">
     INSERT INTO appointments (provider_id, user_id, start_date_time, end_date_time, status, service_type, comments)
-    VALUES (#{providerId}, #{userId}, #{startDateTime}, #{endDateTime} #{status}, #{serviceType}, #{comments})
+    VALUES (#{providerId}, #{userId}, #{startDateTime}, #{endDateTime}, #{status}, #{serviceType}, #{comments})
   </insert>
 
   <!-- Get appointment by ID using the resultMap -->
@@ -75,5 +75,14 @@
     </set>
     WHERE appointment_id = #{appointmentId}
   </update>
+
+  <!-- query for all conflicted appointments -->
+  <select id="findConflictingAppointments" resultMap="appointmentResultMap">
+    SELECT appointment_id, provider_id, user_id, start_date_time, end_date_time, status, service_type, comments
+    FROM appointments
+    WHERE provider_id = #{providerId} AND status != 'cancelled'
+    AND ((start_date_time &lt; #{endDateTime} AND end_date_time &gt; #{startDateTime}))
+  </select>
+
 
 </mapper>
