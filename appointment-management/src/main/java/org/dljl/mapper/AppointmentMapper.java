@@ -24,7 +24,7 @@ public interface AppointmentMapper {
   // Update the appointment using UpdateAppointmentDTO
   void updateAppointment(UpdateAppointmentDTO appointmentDTO);
 
-  @Select("SELECT appointment_id, appointment_date_time, status, service_type, comments " +
+  @Select("SELECT appointment_id, start_date_time, end_date_time, status, service_type, comments " +
     "FROM appointments " +
     "WHERE provider_id = #{providerId} AND user_id = #{userId}")
   List<Appointment> findAppointmentsByProviderAndUser(@Param("providerId") Long providerId, @Param("userId") Long userId);
