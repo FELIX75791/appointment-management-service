@@ -42,6 +42,13 @@ public class AppointmentController {
     }
   }
 
+  // Create a new block
+  @PostMapping("/createBlock")
+  public ResponseEntity<String> createBlock(@RequestBody String startTimeStr, String endTimeStr, Long providerID) {
+    String message = appointmentService.createBlock(startTimeStr, endTimeStr, providerID);
+    return ResponseEntity.ok(message);
+  }
+
   // Update an appointment
   @PutMapping("/update")
   public ResponseEntity<Appointment> updateAppointment(@RequestBody UpdateAppointmentDTO appointmentDTO) {

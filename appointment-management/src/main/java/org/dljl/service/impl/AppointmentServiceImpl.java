@@ -2,6 +2,11 @@ package org.dljl.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import org.dljl.dto.CreateAppointmentDTO;
 import org.dljl.dto.UpdateAppointmentDTO;
 import org.dljl.entity.Appointment;
@@ -42,6 +47,38 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     appointmentMapper.createAppointment(appointment);
     return appointment;
+  }
+
+  @Override
+  public String createBlock(String startTimeStr, String endTimeStr, Long providerID) {
+    // Parse the start and end time strings into LocalTime objects
+    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    LocalTime startTime = LocalTime.parse(startTimeStr, timeFormatter);
+    LocalTime endTime = LocalTime.parse(endTimeStr, timeFormatter);
+
+    // Starting date (today)
+    LocalDate startDate = LocalDate.now();
+    // Date one year from now
+    LocalDate endDate = startDate.plus(1, ChronoUnit.YEARS);
+
+    // Loop through each day for the next year
+    for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+        // Combine date with start and end times to create LocalDateTime instances
+        LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
+        LocalDateTime endDateTime = LocalDateTime.of(date, endTime);
+        Appointment appointment = new Appointment();
+        appointment.setProviderId(providerID);
+        appointment.setUserId(null);
+        appointment.setAppointmentStartDateTime(startDateTime);
+        appointment.setAppointmentEndDateTime(startDateTime);
+        appointment.setStatus("blocked");
+        appointment.setServiceType("blocked");
+        appointment.setComments("blocked");
+        //add this block into db
+        appointmentMapper.createAppointment(appointment);
+
+    }
+    return "the block of "+ startTimeStr + "to" + endTimeStr + "has been created for the following one year";
   }
 
   @Override
