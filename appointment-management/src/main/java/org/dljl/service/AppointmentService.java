@@ -9,6 +9,8 @@ public interface AppointmentService {
 
   Appointment createAppointment(CreateAppointmentDTO appointmentDTO);
 
+  String createBlock(String startTimeStr, String endTimeStr, Long providerID);
+
   Appointment updateAppointment(UpdateAppointmentDTO appointmentDTO);
 
   boolean cancelAppointment(Long id);
