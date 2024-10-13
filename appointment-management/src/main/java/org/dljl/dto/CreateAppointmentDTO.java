@@ -9,7 +9,8 @@ import lombok.Setter;
 public class CreateAppointmentDTO {
   private Long providerId;
   private Long userId;
-  private LocalDateTime appointmentDateTime;
+  private LocalDateTime startDateTime;
+  private LocalDateTime endDateTime;
   private String status;
   private String serviceType;
   private String comments;

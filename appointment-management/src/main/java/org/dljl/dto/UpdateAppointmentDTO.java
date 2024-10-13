@@ -10,7 +10,8 @@ public class UpdateAppointmentDTO {
 
   private Long appointmentId;  // Required
   private Long userId;  // Optional
-  private LocalDateTime appointmentDateTime;  // Optional
+  private LocalDateTime startDateTime; // Optional
+  private LocalDateTime endDateTime;  // Optional
   private String status;  // Optional
   private String serviceType;  // Optional
   private String comments;  // Optional

@@ -10,7 +10,8 @@
     <id property="appointmentId" column="appointment_id"/>
     <result property="providerId" column="provider_id"/>
     <result property="userId" column="user_id"/>
-    <result property="appointmentDateTime" column="appointment_date_time"/>
+    <result property="startDateTime" column="start_date_time"/>
+    <result property="endDateTime" column="end_date_time"/>
     <result property="status" column="status"/>
     <result property="serviceType" column="service_type"/>
     <result property="comments" column="comments"/>
@@ -18,13 +19,13 @@
 
   <!-- Create a new appointment and get the auto-generated appointmentId -->
   <insert id="createAppointment" parameterType="org.dljl.entity.Appointment" useGeneratedKeys="true" keyProperty="appointmentId">
-    INSERT INTO appointments (provider_id, user_id, appointment_date_time, status, service_type, comments)
-    VALUES (#{providerId}, #{userId}, #{appointmentDateTime}, #{status}, #{serviceType}, #{comments})
+    INSERT INTO appointments (provider_id, user_id, start_date_time, end_date_time, status, service_type, comments)
+    VALUES (#{providerId}, #{userId}, #{startDateTime}, #{endDateTime}, #{status}, #{serviceType}, #{comments})
   </insert>
 
   <!-- Get appointment by ID using the resultMap -->
   <select id="getAppointment" resultMap="appointmentResultMap" parameterType="Long">
-    SELECT appointment_id, provider_id, user_id, appointment_date_time, status, service_type, comments
+    SELECT appointment_id, provider_id, user_id, start_date_time, end_date_time, status, service_type, comments
     FROM appointments
     WHERE appointment_id = #{id}
   </select>
@@ -38,7 +39,7 @@
 
   <!-- Get all appointments by provider ID using the resultMap -->
   <select id="getAppointmentsByProviderId" resultMap="appointmentResultMap" parameterType="Long">
-    SELECT appointment_id, provider_id, user_id, appointment_date_time, status, service_type, comments
+    SELECT appointment_id, provider_id, user_id, start_date_time, end_date_time, status, service_type, comments
     FROM appointments
     WHERE provider_id = #{providerId}
   </select>
@@ -57,9 +58,9 @@
         user_id = #{userId},
       </if>
 
-      <!-- Update only if appointmentDateTime is provided -->
-      <if test="appointmentDateTime != null">
-        appointment_date_time = #{appointmentDateTime},
+      <!-- Update only if startDateTime and endDateTime are provided -->
+      <if test="startDateTime != null and endDateTime != null">
+        start_date_time = #{startDateTime}, end_date_time = #{endDateTime},
       </if>
 
       <!-- Update only if serviceType is provided -->
@@ -74,5 +75,14 @@
     </set>
     WHERE appointment_id = #{appointmentId}
   </update>
+
+  <!-- query for all conflicted appointments -->
+  <select id="findConflictingAppointments" resultMap="appointmentResultMap">
+    SELECT appointment_id, provider_id, user_id, start_date_time, end_date_time, status, service_type, comments
+    FROM appointments
+    WHERE provider_id = #{providerId} AND status != 'cancelled'
+    AND ((start_date_time &lt; #{endDateTime} AND end_date_time &gt; #{startDateTime}))
+  </select>
+
 
 </mapper>
