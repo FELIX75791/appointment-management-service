@@ -1,11 +1,13 @@
 package org.dljl.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import org.dljl.dto.CreateAppointmentDTO;
 import org.dljl.dto.UpdateAppointmentDTO;
 import org.dljl.entity.Appointment;
 import org.dljl.service.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -87,6 +89,24 @@ public class AppointmentController {
   public ResponseEntity<List<Appointment>> getAppointmentsByProviderId(@PathVariable Long providerId) {
     List<Appointment> appointments = appointmentService.getAppointmentsByProviderId(providerId);
     return ResponseEntity.ok(appointments);
+  }
+
+  // Get appointments by provider ID and Date
+  @GetMapping("/provider/{providerId}/date/{appointmentDate}")
+  public ResponseEntity<List<Appointment>> getAppointmentsByProviderAndDate(
+          @PathVariable("providerId") Long providerId,
+          @PathVariable("appointmentDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate appointmentDate) {
+    List<Appointment> appointments = appointmentService.getAppointmentsByProviderAndDate(providerId, appointmentDate);
+    return ResponseEntity.ok(appointments);
+  }
+
+  // Get all available time intervals in a day by provider ID and Date
+  @GetMapping("/provider/{providerId}/available/date/{appointmentDate}")
+  public ResponseEntity<List<List<LocalDateTime>>> getAvailableTimeIntervals(
+          @PathVariable("providerId") Long providerId,
+          @PathVariable("appointmentDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate appointmentDate) {
+    List<List<LocalDateTime>> availableTimeIntervals = appointmentService.getAvailableTimeIntervals(providerId, appointmentDate);
+    return ResponseEntity.ok(availableTimeIntervals);
   }
 
   public ResponseEntity<List<Map<String, Object>>> getAppointmentHistory(

@@ -4,6 +4,7 @@ import org.dljl.dto.UpdateAppointmentDTO;
 import org.dljl.entity.Appointment;
 import org.apache.ibatis.annotations.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,20 +24,14 @@ public interface AppointmentMapper {
   // Get all appointments by the provider ID
   List<Appointment> getAppointmentsByProviderId(Long providerId);
 
+  // Get all appointments by the provider ID and Date
+  List<Appointment> getAppointmentsByProviderAndDate(Long providerId, LocalDate appointmentDate);
+
   // Update the appointment using UpdateAppointmentDTO
   void updateAppointment(UpdateAppointmentDTO appointmentDTO);
 
   // Get the number of conflicted appointments (maximum 1)
-  @Select("SELECT COUNT(*) " +
-          "FROM appointments " +
-          "WHERE provider_id = #{providerId} " +
-          "AND " +
-          "((#{startDateTime} < end_date_time AND #{startDateTime} >= start_date_time) " +
-          "OR (#{endDateTime} <= end_date_time AND #{endDateTime} > start_date_time) " +
-          "OR (#{startDateTime} <= start_date_time AND #{endDateTime} >= end_date_time))")
-  int checkTimeConflict(@Param("providerId") Long providerId,
-                        @Param("startDateTime") LocalDateTime startDateTime,
-                        @Param("endDateTime") LocalDateTime endDateTime);
+  int checkTimeConflict(Long providerId, LocalDateTime startDateTime, LocalDateTime endDateTime);
 
   @Select("SELECT appointment_id, start_date_time, end_date_time, status, service_type, comments " +
     "FROM appointments " +
