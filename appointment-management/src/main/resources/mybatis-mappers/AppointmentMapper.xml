@@ -51,8 +51,24 @@
     WHERE status != 'cancelled' AND provider_id = #{providerId} AND DATE(start_date_time) = #{appointmentDate}
   </select>
 
+  <!-- Check for update appointment time conflicts -->
+  <select id="checkUpdateTimeConflict" resultType="int" parameterType="map">
+    SELECT COUNT(*)
+    FROM appointments
+    WHERE provider_id = (SELECT provider_id
+                         FROM appointments
+                         WHERE appointment_id = #{appointmentId})
+    AND status != 'cancelled'
+    AND appointment_id != #{appointmentId}
+    AND (
+    (#{startDateTime} &lt; end_date_time AND #{startDateTime} &gt;= start_date_time)
+    OR (#{endDateTime} &lt;= end_date_time AND #{endDateTime} &gt; start_date_time)
+    OR (#{startDateTime} &lt;= start_date_time AND #{endDateTime} &gt;= end_date_time)
+    )
+  </select>
+
   <!-- Check for appointment time conflicts -->
-  <select id="checkTimeConflict" resultType="int" parameterType="map">
+  <select id="checkCreateTimeConflict" resultType="int" parameterType="map">
     SELECT COUNT(*)
     FROM appointments
     WHERE provider_id = #{providerId}

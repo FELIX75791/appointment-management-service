@@ -27,7 +27,7 @@ public class AppointmentServiceImpl implements AppointmentService {
   @Override
   public Appointment createAppointment(CreateAppointmentDTO appointmentDTO) {
 
-    int conflictCount = appointmentMapper.checkTimeConflict(
+    int conflictCount = appointmentMapper.checkCreateTimeConflict(
             appointmentDTO.getProviderId(),
             appointmentDTO.getStartDateTime().truncatedTo(ChronoUnit.SECONDS),
             appointmentDTO.getEndDateTime().truncatedTo(ChronoUnit.SECONDS)
@@ -84,6 +84,16 @@ public class AppointmentServiceImpl implements AppointmentService {
 
   @Override
   public Appointment updateAppointment(UpdateAppointmentDTO appointmentDTO) {
+    int conflictCount = appointmentMapper.checkUpdateTimeConflict(
+            appointmentDTO.getAppointmentId(),
+            appointmentDTO.getStartDateTime().truncatedTo(ChronoUnit.SECONDS),
+            appointmentDTO.getEndDateTime().truncatedTo(ChronoUnit.SECONDS)
+    );
+
+    if (conflictCount != 0) {
+      throw new IllegalArgumentException("The selected time slot conflicts with an existing appointment.");
+    }
+
     // Ensure the appointmentId is provided, as it's required for the update
     if (appointmentDTO.getAppointmentId() == null) {
       throw new IllegalArgumentException("Appointment ID is required for updating an appointment.");

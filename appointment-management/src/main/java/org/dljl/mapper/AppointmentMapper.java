@@ -31,7 +31,10 @@ public interface AppointmentMapper {
   void updateAppointment(UpdateAppointmentDTO appointmentDTO);
 
   // Get the number of conflicted appointments (maximum 1)
-  int checkTimeConflict(Long providerId, LocalDateTime startDateTime, LocalDateTime endDateTime);
+  int checkCreateTimeConflict(Long providerId, LocalDateTime startDateTime, LocalDateTime endDateTime);
+
+  // Get the number of conflicted appointments (maximum 1)
+  int checkUpdateTimeConflict(Long appointmentId, LocalDateTime startDateTime, LocalDateTime endDateTime);
 
   @Select("SELECT appointment_id, start_date_time, end_date_time, status, service_type, comments " +
     "FROM appointments " +
