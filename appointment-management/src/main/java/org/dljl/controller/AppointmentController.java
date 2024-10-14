@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.dljl.dto.CreateAppointmentDTO;
 import org.dljl.dto.UpdateAppointmentDTO;
+import org.dljl.dto.CreateBlockDTO;
 import org.dljl.entity.Appointment;
 import org.dljl.service.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +47,8 @@ public class AppointmentController {
 
   // Create a new block
   @PostMapping("/createBlock")
-  public ResponseEntity<String> createBlock(@RequestBody String startTimeStr, String endTimeStr, Long providerID) {
-    String message = appointmentService.createBlock(startTimeStr, endTimeStr, providerID);
+  public ResponseEntity<String> createBlock(@RequestBody CreateBlockDTO blockDTO) {
+    String message = appointmentService.createBlock(blockDTO);
     return ResponseEntity.ok(message);
   }
 
