@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import org.dljl.dto.CreateAppointmentDTO;
+import org.dljl.dto.CreateBlockDTO;
 import org.dljl.dto.UpdateAppointmentDTO;
 import org.dljl.entity.Appointment;
 import org.dljl.mapper.AppointmentMapper;
@@ -51,36 +52,53 @@ public class AppointmentServiceImpl implements AppointmentService {
   }
 
   @Override
-  public String createBlock(String startTimeStr, String endTimeStr, Long providerID) {
-    // Parse the start and end time strings into LocalTime objects
-    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-    LocalTime startTime = LocalTime.parse(startTimeStr, timeFormatter);
-    LocalTime endTime = LocalTime.parse(endTimeStr, timeFormatter);
-
-    // Starting date (today)
+  public String createBlock(CreateBlockDTO blockDTO) {
+    // Check if provider_id is null before proceeding
+    if (blockDTO.getProviderId() == null) {
+      return "no ID";
+    }
+    Long providerId = blockDTO.getProviderId();
+    LocalTime startTime = blockDTO.getStartTime();
+    LocalTime endTime = blockDTO.getEndTime();
     LocalDate startDate = LocalDate.now();
-    // Date one year from now
     LocalDate endDate = startDate.plus(1, ChronoUnit.YEARS);
 
-    // Loop through each day for the next year
-    for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-        // Combine date with start and end times to create LocalDateTime instances
-        LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
-        LocalDateTime endDateTime = LocalDateTime.of(date, endTime);
-        Appointment appointment = new Appointment();
-        appointment.setProviderId(providerID);
-        appointment.setUserId(null);
-        appointment.setStartDateTime(startDateTime);
-        appointment.setEndDateTime(startDateTime);
-        appointment.setStatus("blocked");
-        appointment.setServiceType("blocked");
-        appointment.setComments("blocked");
-        //add this block into db
-        appointmentMapper.createAppointment(appointment);
+    StringBuilder resultMessage = new StringBuilder();
 
+    for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+      try {
+          LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
+          LocalDateTime endDateTime = LocalDateTime.of(date, endTime);
+
+          Appointment appointment = new Appointment();
+          appointment.setProviderId(providerId);  // Ensure providerId is set
+          appointment.setUserId(null);
+          appointment.setStartDateTime(startDateTime);
+          appointment.setEndDateTime(endDateTime);
+          appointment.setStatus("blocked");
+          appointment.setServiceType("blocked");
+          appointment.setComments("blocked");
+
+          int conflictCount = appointmentMapper.checkCreateTimeConflict(
+            providerId,
+            startDateTime.truncatedTo(ChronoUnit.SECONDS),
+            endDateTime.truncatedTo(ChronoUnit.SECONDS)
+            );
+          if (conflictCount == 0) {
+            appointmentMapper.createAppointment(appointment);
+          }
+          else{
+            resultMessage.append("Conflict on date: ").append(date).append("\n");
+          }
+          
+      } catch (Exception e) {
+          System.err.println("Error detected for date: " + date + " - " + e.getMessage());
+      }
     }
-    return "the block of "+ startTimeStr + "to" + endTimeStr + "has been created for the following one year";
+
+    return resultMessage.toString();
   }
+
 
   @Override
   public Appointment updateAppointment(UpdateAppointmentDTO appointmentDTO) {

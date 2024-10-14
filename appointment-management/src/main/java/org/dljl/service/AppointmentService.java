@@ -5,13 +5,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.dljl.dto.CreateAppointmentDTO;
 import org.dljl.dto.UpdateAppointmentDTO;
+import org.dljl.dto.CreateBlockDTO;
 import org.dljl.entity.Appointment;
 
 public interface AppointmentService {
 
   Appointment createAppointment(CreateAppointmentDTO appointmentDTO);
 
-  String createBlock(String startTimeStr, String endTimeStr, Long providerID);
+  String createBlock(CreateBlockDTO blockDTO);
 
   Appointment updateAppointment(UpdateAppointmentDTO appointmentDTO);
 
