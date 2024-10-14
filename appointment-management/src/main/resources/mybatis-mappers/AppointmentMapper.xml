@@ -2,17 +2,115 @@
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="org.dljl.mapper.AppointmentMapper">
+
+  <!-- Map the DB columns to the Appointment entity properties -->
   <resultMap id="appointmentResultMap" type="org.dljl.entity.Appointment">
-    <id property="id" column="id"/>
+    <id property="appointmentId" column="appointment_id"/>
     <result property="providerId" column="provider_id"/>
     <result property="userId" column="user_id"/>
-    <result property="description" column="description"/>
-    <result property="appointmentDateTime" column="appointment_date_time"/>
+    <result property="startDateTime" column="start_date_time"/>
+    <result property="endDateTime" column="end_date_time"/>
     <result property="status" column="status"/>
+    <result property="serviceType" column="service_type"/>
+    <result property="comments" column="comments"/>
   </resultMap>
 
-  <select id="getAppointmentById" resultMap="appointmentResultMap">
-    SELECT * FROM appointments WHERE id = #{id}
+  <!-- Create a new appointment and get the auto-generated appointmentId -->
+  <insert id="createAppointment" parameterType="org.dljl.entity.Appointment" useGeneratedKeys="true" keyProperty="appointmentId">
+    INSERT INTO appointments (provider_id, user_id, start_date_time, end_date_time, status, service_type, comments)
+    VALUES (#{providerId}, #{userId}, #{startDateTime}, #{endDateTime}, #{status}, #{serviceType}, #{comments})
+  </insert>
+
+  <!-- Get appointment by ID using the resultMap -->
+  <select id="getAppointment" resultMap="appointmentResultMap" parameterType="Long">
+    SELECT appointment_id, provider_id, user_id, start_date_time, end_date_time, status, service_type, comments
+    FROM appointments
+    WHERE appointment_id = #{id}
   </select>
+
+  <!-- Cancel an appointment by setting status to 'cancelled' -->
+  <update id="cancelAppointment" parameterType="Long">
+    UPDATE appointments
+    SET status = 'cancelled'
+    WHERE appointment_id = #{id}
+  </update>
+
+  <!-- Get all appointments by provider ID using the resultMap -->
+  <select id="getAppointmentsByProviderId" resultMap="appointmentResultMap" parameterType="Long">
+    SELECT appointment_id, provider_id, user_id, start_date_time, end_date_time, status, service_type, comments
+    FROM appointments
+    WHERE provider_id = #{providerId} AND status != 'cancelled'
+  </select>
+
+  <!-- Get all appointments by provider ID and Date using the resultMap -->
+  <select id="getAppointmentsByProviderAndDate" resultMap="appointmentResultMap">
+    SELECT appointment_id, provider_id, user_id, start_date_time, end_date_time, status, service_type, comments
+    FROM appointments
+    WHERE status != 'cancelled' AND provider_id = #{providerId} AND DATE(start_date_time) = #{appointmentDate}
+  </select>
+
+  <!-- Check for update appointment time conflicts -->
+  <select id="checkUpdateTimeConflict" resultType="int" parameterType="map">
+    SELECT COUNT(*)
+    FROM appointments
+    WHERE provider_id = (SELECT provider_id
+                         FROM appointments
+                         WHERE appointment_id = #{appointmentId})
+    AND status != 'cancelled'
+    AND appointment_id != #{appointmentId}
+    AND (
+    (#{startDateTime} &lt; end_date_time AND #{startDateTime} &gt;= start_date_time)
+    OR (#{endDateTime} &lt;= end_date_time AND #{endDateTime} &gt; start_date_time)
+    OR (#{startDateTime} &lt;= start_date_time AND #{endDateTime} &gt;= end_date_time)
+    )
+  </select>
+
+  <!-- Check for appointment time conflicts -->
+  <select id="checkCreateTimeConflict" resultType="int" parameterType="map">
+    SELECT COUNT(*)
+    FROM appointments
+    WHERE provider_id = #{providerId}
+    AND status != 'cancelled'
+    AND (
+    (#{startDateTime} &lt; end_date_time AND #{startDateTime} &gt;= start_date_time)
+    OR (#{endDateTime} &lt;= end_date_time AND #{endDateTime} &gt; start_date_time)
+    OR (#{startDateTime} &lt;= start_date_time AND #{endDateTime} &gt;= end_date_time)
+    )
+  </select>
+
+  <!-- Update appointment. Only update fields that are provided in the DTO -->
+  <update id="updateAppointment" parameterType="org.dljl.dto.UpdateAppointmentDTO">
+    UPDATE appointments
+    <set>
+      <!-- Update only if status is provided -->
+      <if test="status != null">
+        status = #{status},
+      </if>
+
+      <!-- Update only if userId is provided -->
+      <if test="userId != null">
+        user_id = #{userId},
+      </if>
+
+      <!-- Update only if startDateTime and endDateTime are provided -->
+      <if test="startDateTime != null and endDateTime != null">
+        start_date_time = #{startDateTime}, end_date_time = #{endDateTime},
+      </if>
+
+      <!-- Update only if serviceType is provided -->
+      <if test="serviceType != null">
+        service_type = #{serviceType},
+      </if>
+
+      <!-- Update only if comments are provided -->
+      <if test="comments != null">
+        comments = #{comments},
+      </if>
+    </set>
+    WHERE appointment_id = #{appointmentId}
+  </update>
+
+
 </mapper>

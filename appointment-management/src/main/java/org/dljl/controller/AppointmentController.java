@@ -1,9 +1,13 @@
 package org.dljl.controller;
 
+import java.time.LocalDate;
 import java.util.List;
+import org.dljl.dto.CreateAppointmentDTO;
+import org.dljl.dto.UpdateAppointmentDTO;
 import org.dljl.entity.Appointment;
 import org.dljl.service.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,31 +33,80 @@ public class AppointmentController {
   @Autowired
   private AppointmentService appointmentService;
 
+  // Create a new appointment
   @PostMapping
-  public Appointment createAppointment(@RequestBody Appointment appointment) {
-    return appointmentService.createAppointment(appointment);
+  public ResponseEntity<Appointment> createAppointment(@RequestBody CreateAppointmentDTO appointmentDTO) {
+    try {
+      Appointment createdAppointment = appointmentService.createAppointment(appointmentDTO);
+      return ResponseEntity.ok(createdAppointment);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(null);
+    }
   }
 
+  // Create a new block
+  @PostMapping("/createBlock")
+  public ResponseEntity<String> createBlock(@RequestBody String startTimeStr, String endTimeStr, Long providerID) {
+    String message = appointmentService.createBlock(startTimeStr, endTimeStr, providerID);
+    return ResponseEntity.ok(message);
+  }
+
+  // Update an appointment
+  @PutMapping("/update")
+  public ResponseEntity<Appointment> updateAppointment(@RequestBody UpdateAppointmentDTO appointmentDTO) {
+    try {
+      Appointment updatedAppointment = appointmentService.updateAppointment(appointmentDTO);
+      return ResponseEntity.ok(updatedAppointment);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(null);
+    }
+  }
+
+  // Cancel an appointment
+  @PutMapping("/cancel/{id}")
+  public ResponseEntity<String> cancelAppointment(@PathVariable Long id) {
+    boolean isCancelled = appointmentService.cancelAppointment(id);
+    if (isCancelled) {
+      return ResponseEntity.ok("Appointment cancelled successfully.");
+    } else {
+      return ResponseEntity.badRequest().body("Appointment not found or already cancelled.");
+    }
+  }
+
+  // Get an appointment by ID
   @GetMapping("/{id}")
-  public Appointment getAppointmentById(@PathVariable Long id) {
-    return appointmentService.getAppointmentById(id);
+  public ResponseEntity<Appointment> getAppointment(@PathVariable Long id) {
+    Appointment appointment = appointmentService.getAppointment(id);
+    if (appointment != null) {
+      return ResponseEntity.ok(appointment);
+    } else {
+      return ResponseEntity.notFound().build();
+    }
   }
 
+  // Get appointments by provider ID
   @GetMapping("/provider/{providerId}")
-  public List<Appointment> getAppointmentsByProvider(@PathVariable Long providerId) {
-    return appointmentService.getAppointmentsByProviderId(providerId);
+  public ResponseEntity<List<Appointment>> getAppointmentsByProviderId(@PathVariable Long providerId) {
+    List<Appointment> appointments = appointmentService.getAppointmentsByProviderId(providerId);
+    return ResponseEntity.ok(appointments);
   }
 
-  @PutMapping("/{id}")
-  public Appointment updateAppointment(@PathVariable Long id,
-                                       @RequestBody Appointment appointment) {
-    appointment.setId(id);
-    return appointmentService.updateAppointment(appointment);
+  // Get appointments by provider ID and Date
+  @GetMapping("/provider/{providerId}/date/{appointmentDate}")
+  public ResponseEntity<List<Appointment>> getAppointmentsByProviderAndDate(
+          @PathVariable("providerId") Long providerId,
+          @PathVariable("appointmentDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate appointmentDate) {
+    List<Appointment> appointments = appointmentService.getAppointmentsByProviderAndDate(providerId, appointmentDate);
+    return ResponseEntity.ok(appointments);
   }
 
-  @DeleteMapping("/{id}")
-  public void deleteAppointment(@PathVariable Long id) {
-    appointmentService.deleteAppointment(id);
+  // Get all available time intervals in a day by provider ID and Date
+  @GetMapping("/provider/{providerId}/available/date/{appointmentDate}")
+  public ResponseEntity<List<List<LocalDateTime>>> getAvailableTimeIntervals(
+          @PathVariable("providerId") Long providerId,
+          @PathVariable("appointmentDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate appointmentDate) {
+    List<List<LocalDateTime>> availableTimeIntervals = appointmentService.getAvailableTimeIntervals(providerId, appointmentDate);
+    return ResponseEntity.ok(availableTimeIntervals);
   }
 
   public ResponseEntity<List<Map<String, Object>>> getAppointmentHistory(
@@ -89,7 +142,8 @@ public class AppointmentController {
     List<Map<String, Object>> response = appointmentHistory.stream().map(appointment -> {
       Map<String, Object> appointmentDetails = new HashMap<>();
       appointmentDetails.put("Appointment ID", appointment.getAppointmentId());
-      appointmentDetails.put("Date and Time", appointment.getAppointmentDateTime());
+      appointmentDetails.put("Start Date and Time", appointment.getStartDateTime());
+      appointmentDetails.put("End Date and Time", appointment.getEndDateTime());
       appointmentDetails.put("Status", appointment.getStatus());
       appointmentDetails.put("Service Type", appointment.getServiceType());
       appointmentDetails.put("Comments", appointment.getComments());

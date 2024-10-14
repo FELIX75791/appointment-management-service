@@ -1,30 +1,42 @@
 package org.dljl.mapper;
 
+import org.dljl.dto.UpdateAppointmentDTO;
 import org.dljl.entity.Appointment;
 import org.apache.ibatis.annotations.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+
 
 @Mapper
 public interface AppointmentMapper {
 
-  @Insert("INSERT INTO appointments (provider_id, user_id, description, appointment_date_time, status) " +
-      "VALUES (#{providerId}, #{userId}, #{description}, #{appointmentDateTime}, #{status})")
+  // Create a new appointment and retrieve the auto-generated appointmentId
   void createAppointment(Appointment appointment);
 
-  @Select("SELECT * FROM appointments WHERE id = #{id}")
-  Appointment getAppointmentById(Long id);
+  // Get an appointment by its ID
+  Appointment getAppointment(Long id);
 
-  @Update("UPDATE appointments SET description=#{description}, appointment_date_time=#{appointmentDateTime}, status=#{status} WHERE id=#{id}")
-  void updateAppointment(Appointment appointment);
+  // Cancel an appointment by setting its status to 'cancelled', return number of rows affected
+  int cancelAppointment(Long id);
 
-  @Delete("DELETE FROM appointments WHERE id = #{id}")
-  void deleteAppointment(Long id);
-
-  @Select("SELECT * FROM appointments WHERE provider_id = #{providerId}")
+  // Get all appointments by the provider ID
   List<Appointment> getAppointmentsByProviderId(Long providerId);
 
-  @Select("SELECT appointment_id, appointment_date_time, status, service_type, comments " +
+  // Get all appointments by the provider ID and Date
+  List<Appointment> getAppointmentsByProviderAndDate(Long providerId, LocalDate appointmentDate);
+
+  // Update the appointment using UpdateAppointmentDTO
+  void updateAppointment(UpdateAppointmentDTO appointmentDTO);
+
+  // Get the number of conflicted appointments (maximum 1)
+  int checkCreateTimeConflict(Long providerId, LocalDateTime startDateTime, LocalDateTime endDateTime);
+
+  // Get the number of conflicted appointments (maximum 1)
+  int checkUpdateTimeConflict(Long appointmentId, LocalDateTime startDateTime, LocalDateTime endDateTime);
+
+  @Select("SELECT appointment_id, start_date_time, end_date_time, status, service_type, comments " +
     "FROM appointments " +
     "WHERE provider_id = #{providerId} AND user_id = #{userId}")
   List<Appointment> findAppointmentsByProviderAndUser(@Param("providerId") Long providerId, @Param("userId") Long userId);
