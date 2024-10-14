@@ -1,6 +1,7 @@
 package org.dljl.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -69,8 +70,8 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = new Appointment();
         appointment.setProviderId(providerID);
         appointment.setUserId(null);
-        appointment.setAppointmentStartDateTime(startDateTime);
-        appointment.setAppointmentEndDateTime(startDateTime);
+        appointment.setStartDateTime(startDateTime);
+        appointment.setEndDateTime(startDateTime);
         appointment.setStatus("blocked");
         appointment.setServiceType("blocked");
         appointment.setComments("blocked");
@@ -109,12 +110,63 @@ public class AppointmentServiceImpl implements AppointmentService {
   }
 
   @Override
+  public List<Appointment> getAppointmentsByProviderAndDate(Long providerId, LocalDate appointmentDate) {
+    return appointmentMapper.getAppointmentsByProviderAndDate(providerId, appointmentDate);
+  }
+
+  @Override
   public boolean cancelAppointment(Long id) {
     // Call the mapper to cancel the appointment
     int rowsAffected = appointmentMapper.cancelAppointment(id);
 
     // If rowsAffected is 1, the appointment was successfully cancelled; otherwise, it was not found
     return rowsAffected == 1;
+  }
+
+  @Override
+  public List<List<LocalDateTime>> getAvailableTimeIntervals(Long providerId, LocalDate date) {
+
+    List<Appointment> appointments = appointmentMapper.getAppointmentsByProviderAndDate(providerId, date);
+
+    LocalDateTime dayStart = date.atStartOfDay();
+    LocalDateTime dayEnd = date.atTime(LocalTime.MAX);
+
+    List<List<LocalDateTime>> availableTimeIntervals = new ArrayList<>();
+
+    if (appointments.isEmpty()) {
+      List<LocalDateTime> fullDay = new ArrayList<>();
+      fullDay.add(dayStart);
+      fullDay.add(dayEnd);
+      availableTimeIntervals.add(fullDay);
+      return availableTimeIntervals;
+    }
+
+    appointments.sort((a, b) -> a.getStartDateTime().compareTo(b.getStartDateTime()));
+
+    LocalDateTime currentStart = dayStart;
+
+    for (Appointment appointment : appointments) {
+      LocalDateTime appointmentStart = appointment.getStartDateTime();
+      LocalDateTime appointmentEnd = appointment.getEndDateTime();
+
+      if (currentStart.isBefore(appointmentStart)) {
+        List<LocalDateTime> availableInterval = new ArrayList<>();
+        availableInterval.add(currentStart);
+        availableInterval.add(appointmentStart);
+        availableTimeIntervals.add(availableInterval);
+      }
+
+      currentStart = appointmentEnd.isAfter(currentStart) ? appointmentEnd : currentStart;
+    }
+
+    if (currentStart.isBefore(dayEnd)) {
+      List<LocalDateTime> availableInterval = new ArrayList<>();
+      availableInterval.add(currentStart);
+      availableInterval.add(dayEnd);
+      availableTimeIntervals.add(availableInterval);
+    }
+
+    return availableTimeIntervals;
   }
 
   @Override
