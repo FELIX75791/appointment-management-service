@@ -6,28 +6,30 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import org.dljl.dto.CreateAppointmentDTO;
-import org.dljl.dto.CreateBlockDTO;
-import org.dljl.dto.CreateRecurringBlockInOneYearDTO;
-import org.dljl.dto.UpdateAppointmentDTO;
+import org.dljl.dto.CreateAppointmentDto;
+import org.dljl.dto.CreateBlockDto;
+import org.dljl.dto.CreateRecurringBlockInOneYearDto;
+import org.dljl.dto.UpdateAppointmentDto;
 import org.dljl.entity.Appointment;
 import org.dljl.mapper.AppointmentMapper;
 import org.dljl.service.AppointmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/** The type Appointment service. */
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
 
-  @Autowired
-  private AppointmentMapper appointmentMapper;
+  @Autowired private AppointmentMapper appointmentMapper;
 
   @Override
-  public Appointment createAppointment(CreateAppointmentDTO appointmentDTO) {
+  public Appointment createAppointment(CreateAppointmentDto appointmentDto) {
 
-    int conflictCount = appointmentMapper.checkCreateTimeConflict(appointmentDTO.getProviderId(),
-        appointmentDTO.getStartDateTime().truncatedTo(ChronoUnit.SECONDS),
-        appointmentDTO.getEndDateTime().truncatedTo(ChronoUnit.SECONDS));
+    int conflictCount =
+        appointmentMapper.checkCreateTimeConflict(
+            appointmentDto.getProviderId(),
+            appointmentDto.getStartDateTime().truncatedTo(ChronoUnit.SECONDS),
+            appointmentDto.getEndDateTime().truncatedTo(ChronoUnit.SECONDS));
 
     if (conflictCount != 0) {
       throw new IllegalArgumentException(
@@ -35,30 +37,30 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     Appointment appointment = new Appointment();
-    appointment.setProviderId(appointmentDTO.getProviderId());
-    appointment.setUserId(appointmentDTO.getUserId());
-    appointment.setStartDateTime(appointmentDTO.getStartDateTime());
-    appointment.setEndDateTime(appointmentDTO.getEndDateTime());
-    appointment.setStatus(appointmentDTO.getStatus());
-    appointment.setServiceType(appointmentDTO.getServiceType());
-    appointment.setComments(appointmentDTO.getComments());
+    appointment.setProviderId(appointmentDto.getProviderId());
+    appointment.setUserId(appointmentDto.getUserId());
+    appointment.setStartDateTime(appointmentDto.getStartDateTime());
+    appointment.setEndDateTime(appointmentDto.getEndDateTime());
+    appointment.setStatus(appointmentDto.getStatus());
+    appointment.setServiceType(appointmentDto.getServiceType());
+    appointment.setComments(appointmentDto.getComments());
 
     appointmentMapper.createAppointment(appointment);
     return appointment;
   }
 
   @Override
-  public String createBlock(CreateBlockDTO blockDTO) {
+  public String createBlock(CreateBlockDto blockDto) {
     // Check if provider_id is null before proceeding
-    if (blockDTO.getProviderId() == null) {
+    if (blockDto.getProviderId() == null) {
       throw new IllegalArgumentException("Provider ID Can't be null.");
     }
-    Long providerId = blockDTO.getProviderId();
-    LocalDateTime startDateTime = blockDTO.getStartDateTime();
-    LocalDateTime endDateTime = blockDTO.getEndDateTime();
+    Long providerId = blockDto.getProviderId();
+    LocalDateTime startDateTime = blockDto.getStartDateTime();
+    LocalDateTime endDateTime = blockDto.getEndDateTime();
 
     Appointment appointment = new Appointment();
-    appointment.setProviderId(providerId);  // Ensure providerId is set
+    appointment.setProviderId(providerId); // Ensure providerId is set
     appointment.setUserId(null);
     appointment.setStartDateTime(startDateTime);
     appointment.setEndDateTime(endDateTime);
@@ -66,8 +68,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     appointment.setServiceType("blocked");
     appointment.setComments("blocked");
 
-    int conflictCount = appointmentMapper.checkCreateTimeConflict(providerId,
-        startDateTime.truncatedTo(ChronoUnit.SECONDS), endDateTime.truncatedTo(ChronoUnit.SECONDS));
+    int conflictCount =
+        appointmentMapper.checkCreateTimeConflict(
+            providerId,
+            startDateTime.truncatedTo(ChronoUnit.SECONDS),
+            endDateTime.truncatedTo(ChronoUnit.SECONDS));
 
     if (conflictCount != 0) {
       throw new IllegalArgumentException(
@@ -80,15 +85,15 @@ public class AppointmentServiceImpl implements AppointmentService {
   }
 
   @Override
-  public String createRecurringBlockInOneYear(CreateRecurringBlockInOneYearDTO blockDTO) {
+  public String createRecurringBlockInOneYear(CreateRecurringBlockInOneYearDto blockDto) {
 
-    if (blockDTO.getProviderId() == null) {
+    if (blockDto.getProviderId() == null) {
       throw new IllegalArgumentException("Provider ID Can't be null.");
     }
 
-    Long providerId = blockDTO.getProviderId();
-    LocalTime startTime = blockDTO.getStartTime();
-    LocalTime endTime = blockDTO.getEndTime();
+    Long providerId = blockDto.getProviderId();
+    LocalTime startTime = blockDto.getStartTime();
+    LocalTime endTime = blockDto.getEndTime();
     LocalDate startDate = LocalDate.now();
     LocalDate endDate = startDate.plusYears(1);
 
@@ -100,13 +105,13 @@ public class AppointmentServiceImpl implements AppointmentService {
       LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
       LocalDateTime endDateTime = LocalDateTime.of(date, endTime);
 
-      CreateBlockDTO singleDayBlockDTO = new CreateBlockDTO();
-      singleDayBlockDTO.setProviderId(providerId);
-      singleDayBlockDTO.setStartDateTime(startDateTime);
-      singleDayBlockDTO.setEndDateTime(endDateTime);
+      CreateBlockDto singleDayBlockDto = new CreateBlockDto();
+      singleDayBlockDto.setProviderId(providerId);
+      singleDayBlockDto.setStartDateTime(startDateTime);
+      singleDayBlockDto.setEndDateTime(endDateTime);
 
       try {
-        createBlock(singleDayBlockDTO);
+        createBlock(singleDayBlockDto);
       } catch (IllegalArgumentException e) {
         hasConflict = true;
         conflictDates.append(date).append("\n");
@@ -122,23 +127,25 @@ public class AppointmentServiceImpl implements AppointmentService {
   }
 
   @Override
-  public Appointment updateAppointment(UpdateAppointmentDTO appointmentDTO) {
-    int conflictCount = appointmentMapper.checkUpdateTimeConflict(appointmentDTO.getAppointmentId(),
-        appointmentDTO.getStartDateTime().truncatedTo(ChronoUnit.SECONDS),
-        appointmentDTO.getEndDateTime().truncatedTo(ChronoUnit.SECONDS));
+  public Appointment updateAppointment(UpdateAppointmentDto appointmentDto) {
+    int conflictCount =
+        appointmentMapper.checkUpdateTimeConflict(
+            appointmentDto.getAppointmentId(),
+            appointmentDto.getStartDateTime().truncatedTo(ChronoUnit.SECONDS),
+            appointmentDto.getEndDateTime().truncatedTo(ChronoUnit.SECONDS));
 
     if (conflictCount != 0) {
       throw new IllegalArgumentException(
           "The selected time slot conflicts with an existing appointment.");
     }
 
-    if (appointmentDTO.getAppointmentId() == null) {
+    if (appointmentDto.getAppointmentId() == null) {
       throw new IllegalArgumentException("Appointment ID is required for updating an appointment.");
     }
 
-    appointmentMapper.updateAppointment(appointmentDTO);
+    appointmentMapper.updateAppointment(appointmentDto);
 
-    return appointmentMapper.getAppointment(appointmentDTO.getAppointmentId());
+    return appointmentMapper.getAppointment(appointmentDto.getAppointmentId());
   }
 
   @Override
@@ -152,8 +159,8 @@ public class AppointmentServiceImpl implements AppointmentService {
   }
 
   @Override
-  public List<Appointment> getAppointmentsByProviderAndDate(Long providerId,
-      LocalDate appointmentDate) {
+  public List<Appointment> getAppointmentsByProviderAndDate(
+      Long providerId, LocalDate appointmentDate) {
     return appointmentMapper.getAppointmentsByProviderAndDate(providerId, appointmentDate);
   }
 
@@ -169,8 +176,8 @@ public class AppointmentServiceImpl implements AppointmentService {
   @Override
   public List<List<LocalDateTime>> getAvailableTimeIntervals(Long providerId, LocalDate date) {
 
-    List<Appointment> appointments = appointmentMapper.getAppointmentsByProviderAndDate(providerId,
-        date);
+    List<Appointment> appointments =
+        appointmentMapper.getAppointmentsByProviderAndDate(providerId, date);
 
     LocalDateTime dayStart = date.atStartOfDay();
     LocalDateTime dayEnd = date.atTime(LocalTime.MAX);
