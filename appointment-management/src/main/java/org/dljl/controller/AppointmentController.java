@@ -110,6 +110,7 @@ public class AppointmentController {
     return ResponseEntity.ok(availableTimeIntervals);
   }
 
+  @GetMapping("/history")
   public ResponseEntity<List<Map<String, Object>>> getAppointmentHistory(
     @RequestParam("provider_id") Long providerId,
     @RequestParam("user_id") Long userId) {
@@ -119,25 +120,6 @@ public class AppointmentController {
     if (appointmentHistory.isEmpty()) {
       return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-//    List<Appointment> appointmentHistory = new ArrayList<>();
-//
-//    // Simulating some appointments
-//    Appointment appointment1 = new Appointment();
-//    appointment1.setAppointmentId(1L);
-//    appointment1.setAppointmentDateTime(LocalDateTime.now().minusDays(1));
-//    appointment1.setStatus("completed");
-//    appointment1.setServiceType("Consultation");
-//    appointment1.setComments("First appointment.");
-//
-//    Appointment appointment2 = new Appointment();
-//    appointment2.setAppointmentId(2L);
-//    appointment2.setAppointmentDateTime(LocalDateTime.now().minusDays(2));
-//    appointment2.setStatus("canceled");
-//    appointment2.setServiceType("Repair");
-//    appointment2.setComments("Client canceled.");
-//
-//    appointmentHistory.add(appointment1);
-//    appointmentHistory.add(appointment2);
 
     // Customize the output
     List<Map<String, Object>> response = appointmentHistory.stream().map(appointment -> {

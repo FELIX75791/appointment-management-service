@@ -44,6 +44,14 @@
     WHERE provider_id = #{providerId} AND status != 'cancelled'
   </select>
 
+  <!-- Get appointments by provider ID and user ID using the resultMap -->
+  <select id="findAppointmentsByProviderAndUser" resultMap="appointmentResultMap" parameterType="Long">
+    SELECT appointment_id, start_date_time, end_date_time, status, service_type, comments
+    FROM appointments
+    WHERE provider_id = #{providerId} AND user_id = #{userId}
+  </select>
+
+
   <!-- Get all appointments by provider ID and Date using the resultMap -->
   <select id="getAppointmentsByProviderAndDate" resultMap="appointmentResultMap">
     SELECT appointment_id, provider_id, user_id, start_date_time, end_date_time, status, service_type, comments
