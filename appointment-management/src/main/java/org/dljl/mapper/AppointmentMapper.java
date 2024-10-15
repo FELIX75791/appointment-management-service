@@ -36,8 +36,6 @@ public interface AppointmentMapper {
   // Get the number of conflicted appointments (maximum 1)
   int checkUpdateTimeConflict(Long appointmentId, LocalDateTime startDateTime, LocalDateTime endDateTime);
 
-  @Select("SELECT appointment_id, start_date_time, end_date_time, status, service_type, comments " +
-    "FROM appointments " +
-    "WHERE provider_id = #{providerId} AND user_id = #{userId}")
-  List<Appointment> findAppointmentsByProviderAndUser(@Param("providerId") Long providerId, @Param("userId") Long userId);
+  //Get all history by given provider and user
+  List<Appointment> findAppointmentsByProviderAndUser( Long providerId, Long userId);
 }
