@@ -4,8 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.dljl.dto.CreateAppointmentDTO;
-import org.dljl.dto.UpdateAppointmentDTO;
 import org.dljl.dto.CreateBlockDTO;
+import org.dljl.dto.UpdateAppointmentDTO;
+import org.dljl.dto.CreateRecurringBlockInOneYearDTO;
 import org.dljl.entity.Appointment;
 
 public interface AppointmentService {
@@ -13,6 +14,8 @@ public interface AppointmentService {
   Appointment createAppointment(CreateAppointmentDTO appointmentDTO);
 
   String createBlock(CreateBlockDTO blockDTO);
+
+  String createRecurringBlockInOneYear(CreateRecurringBlockInOneYearDTO blockDTO);
 
   Appointment updateAppointment(UpdateAppointmentDTO appointmentDTO);
 
