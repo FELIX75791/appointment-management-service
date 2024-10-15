@@ -4,6 +4,14 @@ import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Represents an appointment scheduled between a provider and a user. This entity includes details
+ * about the appointment such as the ID, the participants, the start and end times, status, and
+ * additional comments.
+ *
+ * <p>This class uses Lombok's {@code @Getter} and {@code @Setter} annotations to automatically
+ * generate getter and setter methods for its fields.
+ */
 @Setter
 @Getter
 public class Appointment {
@@ -16,5 +24,4 @@ public class Appointment {
   private String status;
   private String serviceType;
   private String comments;
-
 }

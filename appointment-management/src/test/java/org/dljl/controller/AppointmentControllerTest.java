@@ -1,5 +1,4 @@
 package org.dljl.controller;
 
-public class AppointmentControllerTest {
-
-}
+/** The type Appointment controller test. */
+public class AppointmentControllerTest {}

@@ -4,9 +4,10 @@ import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
+/** The type Create appointment dto. */
 @Getter
 @Setter
-public class CreateAppointmentDTO {
+public class CreateAppointmentDto {
   private Long providerId;
   private Long userId;
   private LocalDateTime startDateTime;
