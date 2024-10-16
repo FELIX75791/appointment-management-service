@@ -38,18 +38,18 @@ public class AppointmentServiceTest {
   @Test
   void testCreateAppointment_noConflicts_success() {
 
-    CreateAppointmentDto appointmentDTO = new CreateAppointmentDto();
-    appointmentDTO.setProviderId(1L);
-    appointmentDTO.setUserId(2L);
-    appointmentDTO.setStartDateTime(LocalDateTime.of(2024, 10, 15, 10, 0));
-    appointmentDTO.setEndDateTime(LocalDateTime.of(2024, 10, 15, 11, 0));
-    appointmentDTO.setStatus("scheduled");
-    appointmentDTO.setServiceType("consultation");
-    appointmentDTO.setComments("Test appointment");
+    CreateAppointmentDto appointmentDto = new CreateAppointmentDto();
+    appointmentDto.setProviderId(1L);
+    appointmentDto.setUserId(2L);
+    appointmentDto.setStartDateTime(LocalDateTime.of(2024, 10, 15, 10, 0));
+    appointmentDto.setEndDateTime(LocalDateTime.of(2024, 10, 15, 11, 0));
+    appointmentDto.setStatus("scheduled");
+    appointmentDto.setServiceType("consultation");
+    appointmentDto.setComments("Test appointment");
 
     when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any())).thenReturn(0);
 
-    Appointment result = appointmentService.createAppointment(appointmentDTO);
+    Appointment result = appointmentService.createAppointment(appointmentDto);
 
     assertNotNull(result);
     assertEquals(1L, result.getProviderId());
@@ -64,17 +64,17 @@ public class AppointmentServiceTest {
   @Test
   void testCreateAppointment_timeConflict_throwsException() {
 
-    CreateAppointmentDto appointmentDTO = new CreateAppointmentDto();
-    appointmentDTO.setProviderId(1L);
-    appointmentDTO.setStartDateTime(LocalDateTime.of(2024, 10, 15, 10, 0));
-    appointmentDTO.setEndDateTime(LocalDateTime.of(2024, 10, 15, 11, 0));
+    CreateAppointmentDto appointmentDto = new CreateAppointmentDto();
+    appointmentDto.setProviderId(1L);
+    appointmentDto.setStartDateTime(LocalDateTime.of(2024, 10, 15, 10, 0));
+    appointmentDto.setEndDateTime(LocalDateTime.of(2024, 10, 15, 11, 0));
 
     when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any())).thenReturn(1);
 
     IllegalArgumentException exception =
         assertThrows(
             IllegalArgumentException.class,
-            () -> appointmentService.createAppointment(appointmentDTO));
+            () -> appointmentService.createAppointment(appointmentDto));
     assertEquals(
         "The selected time slot is not available or conflicts with an existing appointment.",
         exception.getMessage());
