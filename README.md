@@ -49,13 +49,15 @@ Any malformed request (e.g., improper encoding of spaces, or incorrect API endpo
     "comments": "Advanced Software Engineering"
   }
 - **Expected Output:** `Appointment` (JSON)
-- Registers a new appointment with the service. The appointment requires details such as provider id, user id, start date time, end date time, status, service type, comments. This endpoint should be used to create a one-time appointment.
+- Registers a new appointment. The appointment requires provider id, user id, start date time, end date time, status, service type, comments. This endpoint should be used to create a one-time appointment.
 
 - **Upon Success:** `HTTP 201` status code is returned along with the created `Appointment` object in the response body.
 - **Upon Failure:**
   - `HTTP 400` status code is returned if the appointment has a time conflict : 
     "The selected time slot is not available or conflicts with an existing appointment. " ;
   - `HTTP 500` status code is returned with the message "An unexpected error occurred: [error message]" if there is a server-side issue.
+
+
 
 ### POST /appointments/createBlock
 
@@ -66,11 +68,63 @@ Any malformed request (e.g., improper encoding of spaces, or incorrect API endpo
       "startDateTime": "2024-010-01T10:00:00",
       "endDateTime": "2024-010-01T21:00:00"
     }
-- **Expected Output:** `String` (Success message)
+- **Expected Output:** `String` (message)
 - Creates a single block. You need to provide a start date time, end date time and the provider id to create the block.
 
-- **Upon Success:** `HTTP 201` status code is returned along with a message "Block Created Successfully"confirming the creation of the block.
+- **Upon Success:** `HTTP 201` status code is returned along with a message "Block Created Successfully" confirming the creation of the block.
 - **Upon Failure:**
   - `HTTP 400` status code is returned if it has a conflict: 
     "The selected time slot is not available or conflicts with an existing appointment. To block this time, please cancel the conflicting appointment or block.";
   - `HTTP 500` status code is returned with the message "An unexpected error occurred: [error message]" if there is a server-side issue.
+
+
+
+### POST /appointments/createRecurringBlockInOneYear
+
+- **Expected Input Parameters:** `CreateRecurringBlockInOneYearDto` (JSON)
+  ```json
+  {
+    "providerId": 1,
+    "startTime": "10:10",
+    "endTime": "11:25"
+  }
+- **Expected Output:** `String` (message)
+- Creates a recurring block for the following one year. You need to provide a start time, end time and the provider id to create the block. It would remind you of any conflicts it encounters.
+
+- **Upon Success:** `HTTP 201` status code is returned along with a message "Yearly recurring block created successfullyy" confirming the creation of the blocks.
+- **Upon Failure:**
+  - `HTTP 400` status code is returned if it has a conflict: "Conflicts found on the following dates: ..." or because of the provider id is null: "Provider ID Can't be null."
+  - `HTTP 500` status code is returned with the message "An unexpected error occurred: [error message]" if there is a server-side issue.
+
+
+
+### PUT /appointments/update
+- **Expected Input Parameters:** `UpdateAppointmentDto` (JSON)
+  ```json
+  {
+    "appointmentID": 1, //required
+    "providerId": 1, //optional
+    "userId": 2,  //optional
+    "startDateTime": "2024-10-15T10:10:00",  //optional
+    "endDateTime": "2024-10-15T11:25:00",  //optional
+    "status": "CONFIRMED",  //optional
+    "serviceType": "Lecture",  //optional
+    "comments": "Advanced Software Engineering"  //optional
+  }
+- **Expected Output:** `Appointment` (JSON)
+- Update a appointment with the service. The appointment requires appointment id. This endpoint should be update a one-time appointment.
+
+- **Upon Success:** `HTTP 200` status code is returned along with the updated `Appointment` object in the response body.
+- **Upon Failure:**
+  - `HTTP 400` status code is returned if the appointment is not updated
+
+
+
+### PUT /appointments/cancel/{id}
+- **Expected Input Parameters:** appointment id (Long)
+- **Expected Output:** Message (String)
+- Cancel a appointment by setting its status to cancelled. The appointment requires appointment id. This endpoint should be update a one-time appointment.
+
+- **Upon Success:** `HTTP 200` status code is returned along with the message "Appointment cancelled successfully."
+- **Upon Failure:**
+  - `HTTP 400` status code is returned if the appointment does not exist : "Appointment not found or already cancelled."
