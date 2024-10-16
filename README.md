@@ -28,3 +28,49 @@ In order to build and use our service, you must install the following dependenci
 We provided unit tests under the directory src/test
 You are welcome to test our end points after running an instance. We recommend using Postman or Bruno
 
+## Endpoints
+
+This section describes the endpoints that our service provides, as well as their inputs and outputs. 
+Any malformed request (e.g., improper encoding of spaces, or incorrect API endpoint structure) will result in an `HTTP 400 Bad Request`.
+
+### POST /register-client
+
+### POST /appointments/createAppointment
+
+- **Expected Input Parameters:** `CreateAppointmentDto` (JSON)
+  ```json
+  {
+    "providerId": 1,
+    "userId": 2,
+    "startDateTime": "2024-10-15T10:10:00",
+    "endDateTime": "2024-10-15T11:25:00",
+    "status": "CONFIRMED",
+    "serviceType": "Lecture",
+    "comments": "Advanced Software Engineering"
+  }
+- **Expected Output:** `Appointment` (JSON)
+- Registers a new appointment with the service. The appointment requires details such as provider id, user id, start date time, end date time, status, service type, comments. This endpoint should be used to create a one-time appointment.
+
+- **Upon Success:** `HTTP 201` status code is returned along with the created `Appointment` object in the response body.
+- **Upon Failure:**
+  - `HTTP 400` status code is returned if the appointment has a time conflict : 
+    "The selected time slot is not available or conflicts with an existing appointment. " ;
+  - `HTTP 500` status code is returned with the message "An unexpected error occurred: [error message]" if there is a server-side issue.
+
+### POST /appointments/createBlock
+
+- **Expected Input Parameters:** `CreateBlockDto` (JSON)
+  ```json
+    {
+      "providerId": 1,
+      "startDateTime": "2024-010-01T10:00:00",
+      "endDateTime": "2024-010-01T21:00:00"
+    }
+- **Expected Output:** `String` (Success message)
+- Creates a single block. You need to provide a start date time, end date time and the provider id to create the block.
+
+- **Upon Success:** `HTTP 201` status code is returned along with a message "Block Created Successfully"confirming the creation of the block.
+- **Upon Failure:**
+  - `HTTP 400` status code is returned if it has a conflict: 
+    "The selected time slot is not available or conflicts with an existing appointment. To block this time, please cancel the conflicting appointment or block.";
+  - `HTTP 500` status code is returned with the message "An unexpected error occurred: [error message]" if there is a server-side issue.
