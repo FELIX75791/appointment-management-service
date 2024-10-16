@@ -49,7 +49,7 @@ Any malformed request (e.g., improper encoding of spaces, or incorrect API endpo
     "comments": "Advanced Software Engineering"
   }
 - **Expected Output:** `Appointment` (JSON)
-- Registers a new appointment. The appointment requires provider id, user id, start date time, end date time, status, service type, comments. This endpoint should be used to create a one-time appointment.
+- Registers a new appointment. This requires provider id, user id, start date time, end date time, status, service type, comments. This endpoint should be used to create a one-time appointment.
 
 - **Upon Success:** `HTTP 201` status code is returned along with the created `Appointment` object in the response body.
 - **Upon Failure:**
@@ -68,7 +68,7 @@ Any malformed request (e.g., improper encoding of spaces, or incorrect API endpo
       "startDateTime": "2024-010-01T10:00:00",
       "endDateTime": "2024-010-01T21:00:00"
     }
-- **Expected Output:** `String` (message)
+- **Expected Output:** `Message` (String)
 - Creates a single block. You need to provide a start date time, end date time and the provider id to create the block.
 
 - **Upon Success:** `HTTP 201` status code is returned along with a message "Block Created Successfully" confirming the creation of the block.
@@ -88,7 +88,7 @@ Any malformed request (e.g., improper encoding of spaces, or incorrect API endpo
     "startTime": "10:10",
     "endTime": "11:25"
   }
-- **Expected Output:** `String` (message)
+- **Expected Output:** `Message` (String)
 - Creates a recurring block for the following one year. You need to provide a start time, end time and the provider id to create the block. It would remind you of any conflicts it encounters.
 
 - **Upon Success:** `HTTP 201` status code is returned along with a message "Yearly recurring block created successfullyy" confirming the creation of the blocks.
@@ -112,7 +112,7 @@ Any malformed request (e.g., improper encoding of spaces, or incorrect API endpo
     "comments": "Advanced Software Engineering"  //optional
   }
 - **Expected Output:** `Appointment` (JSON)
-- Update a appointment with the service. The appointment requires appointment id. This endpoint should be update a one-time appointment.
+- Update a appointment with the service. This requires appointment id. This endpoint should be update a one-time appointment.
 
 - **Upon Success:** `HTTP 200` status code is returned along with the updated `Appointment` object in the response body.
 - **Upon Failure:**
@@ -121,10 +121,56 @@ Any malformed request (e.g., improper encoding of spaces, or incorrect API endpo
 
 
 ### PUT /appointments/cancel/{id}
-- **Expected Input Parameters:** appointment id (Long)
-- **Expected Output:** Message (String)
-- Cancel a appointment by setting its status to cancelled. The appointment requires appointment id. This endpoint should be update a one-time appointment.
+- **Expected Input Parameters:** `appointment id` (PathVariable Long)
+- **Expected Output:** `Message` (String)
+- Cancel a appointment by setting its status to cancelled. This requires appointment id. This endpoint should cancel a one-time appointment.
 
 - **Upon Success:** `HTTP 200` status code is returned along with the message "Appointment cancelled successfully."
 - **Upon Failure:**
   - `HTTP 400` status code is returned if the appointment does not exist : "Appointment not found or already cancelled."
+
+
+
+### GET /appointments/{id}
+- **Expected Input Parameters:** `appointment id` (PathVariable Long)
+- **Expected Output:** `Appointment` (JSON)
+- Get a appointment by its id. This requires appointment id. This endpoint should get a one-time appointment.
+
+- **Upon Success:** `HTTP 200` status code is returned along with with the `Appointment` object in the response body.
+- **Upon Failure:**
+  - `HTTP 404` status code is returned if the appointment is not found
+
+
+
+### GET /provider/{providerId}
+- **Expected Input Parameters:** `providerId` (PathVariable Long)
+- **Expected Output:** `Appointments` (List of Appointment)
+- Get all appointments of one provider. The appointment requires provider id. This endpoint should get a list of one-time appointments.
+
+- **Upon Success:** `HTTP 200` status code is returned along with with the list of `Appointment` object in the response body.
+
+
+
+### GET /provider/{providerId}/date/{appointmentDate}
+- **Expected Input Parameters:** `providerId` (PathVariable Long),  `AppointmentDate` (LocalDate)
+- **Expected Output:**  `Appointments` (List of Appointment)
+- Get all appointments of one provider at a specific date. The appointment requires provider id and a local date. This endpoint should get a list of one-time appointments.
+
+- **Upon Success:** `HTTP 200` status code is returned along with with the list of `Appointment` object in the response body.
+
+
+
+### GET /provider/{providerId}/available/date/{appointmentDate}
+- **Expected Input Parameters:** `providerId` (PathVariable Long),  `AppointmentDate` (LocalDate)
+- **Expected Output:**  `Intervals` (List of List of Local Time)
+- Get all available intervals of one provider at a specific date. The intervals require provider id and a local date. This endpoint should get a list of list of local time.
+
+- **Upon Success:** `HTTP 200` status code is returned along with with the list of list of local time (intervals).
+
+
+### GET /hisory
+- **Expected Input Parameters:** `providerId` (PathVariable Long),  `userId` (PathVariable Long)
+- **Expected Output:**  `History` (List<Map<String, Object>>)
+- Get all appointment history of one provider with one user. This requires provider id and a user id. This endpoint should get a list of map.
+
+- **Upon Success:** `HTTP 200` status code is returned along with with the hirtory object.
