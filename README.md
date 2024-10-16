@@ -31,7 +31,7 @@ You are welcome to test our end points after running an instance. We recommend u
 ## Endpoints
 
 This section describes the endpoints that our service provides, as well as their inputs and outputs. 
-Any malformed request (e.g., improper encoding of spaces, or incorrect API endpoint structure) will result in an `HTTP 400 Bad Request`.
+We also provided some input examples.
 
 ### POST /register-client
 
