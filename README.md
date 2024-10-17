@@ -31,22 +31,7 @@ You are welcome to test our end points after running an instance. We recommend u
 This section describes the endpoints that our service provides, as well as their inputs and outputs.
 We also provided some input examples.
 
-## Style Checking Report
 
-We used the tool **Checkstyle** to check the style of our code and ensure it adheres to industry-standard best practices. Checkstyle helps us maintain code consistency and ensures that our codebase follows the rules defined by the **Google Java Style Guide**.
-### Tool Used:
-- **Checkstyle**: A development tool to help programmers write Java code that adheres to a coding standard. We use the `maven-checkstyle-plugin` to integrate Checkstyle into our build process.
-
-### Configuration:
-- We used the **Google Java Style** configuration file (`google_checks.xml`) for our Checkstyle setup.
-- Both source and test directories are included in the style checks.
-
-### Running Style Checks:
-To run the Checkstyle checks locally and generate a report, use the following Maven command:
-```bash
-mvn checkstyle:checkstyle
-```
-![Style Check Report](appointment-management/src/Report/stylecheck.png)
 ## Running a Cloud Based Instance
 
 
@@ -201,8 +186,32 @@ We also provided some input examples.
 
 - **Upon Success:** `HTTP 200` status code is returned along with with the hirtory object.
 
-## Style Check Report
-  ![image](https://github.com/user-attachments/assets/a51f14f0-8641-44e9-b21b-c9ba31aec585)
-
 ## Code Coverage Report
+
+The project uses [JaCoCo](https://www.jacoco.org/) (Java Code Coverage Library) to measure the code coverage of our unit tests. JaCoCo is integrated with our build process, and it automatically generates reports detailing the coverage of the codebase, including the percentage of lines and branches covered by the tests.
+
+After running the tests, JaCoCo produces a detailed report in formats like HTML, XML, and CSV that can be viewed for an in-depth analysis of the coverage.
+
+To generate the report, run the following command:
+
+```bash
+mvn clean test jacoco:report
+```
 <img width="994" alt="image" src="https://github.com/user-attachments/assets/9fa4a805-2deb-40af-9022-f5283a68462a">
+
+## Style Checking Report
+
+We used the tool **Checkstyle** to check the style of our code and ensure it adheres to industry-standard best practices. Checkstyle helps us maintain code consistency and ensures that our codebase follows the rules defined by the **Google Java Style Guide**.
+### Tool Used:
+- **Checkstyle**: A development tool to help programmers write Java code that adheres to a coding standard. We use the `maven-checkstyle-plugin` to integrate Checkstyle into our build process.
+
+### Configuration:
+- We used the **Google Java Style** for our Checkstyle setup.
+- Both source and test directories are included in the style checks.
+
+### Running Style Checks:
+To run the Checkstyle checks locally and generate a report, use the following Maven command:
+```bash
+mvn checkstyle:checkstyle
+```
+![Style Check Report](appointment-management/src/Report/stylecheck.png)
