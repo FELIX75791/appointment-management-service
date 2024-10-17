@@ -20,35 +20,18 @@ In order to build and use our service, you must install the following dependenci
 
 7. **Running the Project**: Once built, you can run this project by <code>mvn spring-boot:run</code> 
 
-
+8. **Getting Code Coverage Report** : You can check code coverage report by running <code>mvn jacoco:report</code> 
 ## Running a Cloud Based Instance
 
 
 ## Running test
-We provided unit tests under the directory src/test
+We provided unit tests under the directory src/test. You can also test by running <code>mvn clean test</code> 
 You are welcome to test our end points after running an instance. We recommend using Postman or Bruno
 
 ## Endpoints
 
 This section describes the endpoints that our service provides, as well as their inputs and outputs. 
 We also provided some input examples.
-
-## Style Checking Report
-
-We used the tool **Checkstyle** to check the style of our code and ensure it adheres to industry-standard best practices. Checkstyle helps us maintain code consistency and ensures that our codebase follows the rules defined by the **Google Java Style Guide**.
-### Tool Used:
-- **Checkstyle**: A development tool to help programmers write Java code that adheres to a coding standard. We use the `maven-checkstyle-plugin` to integrate Checkstyle into our build process.
-
-### Configuration:
-- We used the **Google Java Style** configuration file (`google_checks.xml`) for our Checkstyle setup.
-- Both source and test directories are included in the style checks.
-
-### Running Style Checks:
-To run the Checkstyle checks locally and generate a report, use the following Maven command:
-```bash
-mvn checkstyle:checkstyle
-```
-![Style Check Report](appointment-management/src/Report/stylecheck.png)
 
 ### POST /register-client
 
@@ -159,7 +142,7 @@ mvn checkstyle:checkstyle
 
 
 
-### GET /provider/{providerId}
+### GET /appointments/provider/{providerId}
 - **Expected Input Parameters:** `providerId` (PathVariable Long)
 - **Expected Output:** `Appointments` (List of Appointment)
 - Get all appointments of one provider. The appointment requires provider id. This endpoint should get a list of one-time appointments.
@@ -168,7 +151,7 @@ mvn checkstyle:checkstyle
 
 
 
-### GET /provider/{providerId}/date/{appointmentDate}
+### GET /appointments/provider/{providerId}/date/{appointmentDate}
 - **Expected Input Parameters:** `providerId` (PathVariable Long),  `AppointmentDate` (LocalDate)
 - **Expected Output:**  `Appointments` (List of Appointment)
 - Get all appointments of one provider at a specific date. The appointment requires provider id and a local date. This endpoint should get a list of one-time appointments.
@@ -177,7 +160,7 @@ mvn checkstyle:checkstyle
 
 
 
-### GET /provider/{providerId}/available/date/{appointmentDate}
+### GET /appointments/provider/{providerId}/available/date/{appointmentDate}
 - **Expected Input Parameters:** `providerId` (PathVariable Long),  `AppointmentDate` (LocalDate)
 - **Expected Output:**  `Intervals` (List of List of Local Time)
 - Get all available intervals of one provider at a specific date. The intervals require provider id and a local date. This endpoint should get a list of list of local time.
@@ -185,9 +168,15 @@ mvn checkstyle:checkstyle
 - **Upon Success:** `HTTP 200` status code is returned along with with the list of list of local time (intervals).
 
 
-### GET /appointments/history?provider_id={providerId}&user_id={userId}
+### GET /appointments/hisory
 - **Expected Input Parameters:** `providerId` (PathVariable Long),  `userId` (PathVariable Long)
 - **Expected Output:**  `History` (List<Map<String, Object>>)
 - Get all appointment history of one provider with one user. This requires provider id and a user id. This endpoint should get a list of map.
 
 - **Upon Success:** `HTTP 200` status code is returned along with with the hirtory object.
+
+## Style Check Report
+  ![image](https://github.com/user-attachments/assets/a51f14f0-8641-44e9-b21b-c9ba31aec585)
+
+## Code Coverage Report
+<img width="994" alt="image" src="https://github.com/user-attachments/assets/9fa4a805-2deb-40af-9022-f5283a68462a">
