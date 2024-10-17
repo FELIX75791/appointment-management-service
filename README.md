@@ -20,12 +20,12 @@ In order to build and use our service, you must install the following dependenci
 
 7. **Running the Project**: Once built, you can run this project by <code>mvn spring-boot:run</code> 
 
-
+8. **Getting Code Coverage Report** : You can check code coverage report by running <code>mvn jacoco:report</code> 
 ## Running a Cloud Based Instance
 
 
 ## Running test
-We provided unit tests under the directory src/test
+We provided unit tests under the directory src/test. You can also test by running <code>mvn clean test</code> 
 You are welcome to test our end points after running an instance. We recommend using Postman or Bruno
 
 ## Endpoints
@@ -142,7 +142,7 @@ We also provided some input examples.
 
 
 
-### GET /provider/{providerId}
+### GET /appointments/provider/{providerId}
 - **Expected Input Parameters:** `providerId` (PathVariable Long)
 - **Expected Output:** `Appointments` (List of Appointment)
 - Get all appointments of one provider. The appointment requires provider id. This endpoint should get a list of one-time appointments.
@@ -151,7 +151,7 @@ We also provided some input examples.
 
 
 
-### GET /provider/{providerId}/date/{appointmentDate}
+### GET /appointments/provider/{providerId}/date/{appointmentDate}
 - **Expected Input Parameters:** `providerId` (PathVariable Long),  `AppointmentDate` (LocalDate)
 - **Expected Output:**  `Appointments` (List of Appointment)
 - Get all appointments of one provider at a specific date. The appointment requires provider id and a local date. This endpoint should get a list of one-time appointments.
@@ -160,7 +160,7 @@ We also provided some input examples.
 
 
 
-### GET /provider/{providerId}/available/date/{appointmentDate}
+### GET /appointments/provider/{providerId}/available/date/{appointmentDate}
 - **Expected Input Parameters:** `providerId` (PathVariable Long),  `AppointmentDate` (LocalDate)
 - **Expected Output:**  `Intervals` (List of List of Local Time)
 - Get all available intervals of one provider at a specific date. The intervals require provider id and a local date. This endpoint should get a list of list of local time.
@@ -168,9 +168,15 @@ We also provided some input examples.
 - **Upon Success:** `HTTP 200` status code is returned along with with the list of list of local time (intervals).
 
 
-### GET /hisory
+### GET /appointments/hisory
 - **Expected Input Parameters:** `providerId` (PathVariable Long),  `userId` (PathVariable Long)
 - **Expected Output:**  `History` (List<Map<String, Object>>)
 - Get all appointment history of one provider with one user. This requires provider id and a user id. This endpoint should get a list of map.
 
 - **Upon Success:** `HTTP 200` status code is returned along with with the hirtory object.
+
+## Style Check Report
+  ![image](https://github.com/user-attachments/assets/a51f14f0-8641-44e9-b21b-c9ba31aec585)
+
+## Code Coverage Report
+<img width="994" alt="image" src="https://github.com/user-attachments/assets/9fa4a805-2deb-40af-9022-f5283a68462a">
