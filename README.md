@@ -33,6 +33,23 @@ You are welcome to test our end points after running an instance. We recommend u
 This section describes the endpoints that our service provides, as well as their inputs and outputs. 
 We also provided some input examples.
 
+## Style Checking Report
+
+We used the tool **Checkstyle** to check the style of our code and ensure it adheres to industry-standard best practices. Checkstyle helps us maintain code consistency and ensures that our codebase follows the rules defined by the **Google Java Style Guide**.
+### Tool Used:
+- **Checkstyle**: A development tool to help programmers write Java code that adheres to a coding standard. We use the `maven-checkstyle-plugin` to integrate Checkstyle into our build process.
+
+### Configuration:
+- We used the **Google Java Style** configuration file (`google_checks.xml`) for our Checkstyle setup.
+- Both source and test directories are included in the style checks.
+
+### Running Style Checks:
+To run the Checkstyle checks locally and generate a report, use the following Maven command:
+```bash
+mvn checkstyle:checkstyle
+```
+![Style Check Report](appointment-management/src/Report/stylecheck.png)
+
 ### POST /register-client
 
 ### POST /appointments/createAppointment
@@ -168,7 +185,7 @@ We also provided some input examples.
 - **Upon Success:** `HTTP 200` status code is returned along with with the list of list of local time (intervals).
 
 
-### GET /hisory
+### GET /appointments/history?provider_id={providerId}&user_id={userId}
 - **Expected Input Parameters:** `providerId` (PathVariable Long),  `userId` (PathVariable Long)
 - **Expected Output:**  `History` (List<Map<String, Object>>)
 - Get all appointment history of one provider with one user. This requires provider id and a user id. This endpoint should get a list of map.
