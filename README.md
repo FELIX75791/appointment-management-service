@@ -20,12 +20,12 @@ In order to build and use our service, you must install the following dependenci
 
 7. **Running the Project**: Once built, you can run this project by <code>mvn spring-boot:run</code> 
 
-
+8. **Getting Code Coverage Report** : You can check code coverage report by running <code>mvn jacoco:report</code> 
 ## Running a Cloud Based Instance
 
 
 ## Running test
-We provided unit tests under the directory src/test
+We provided unit tests under the directory src/test. You can also test by running <code>mvn clean test</code> 
 You are welcome to test our end points after running an instance. We recommend using Postman or Bruno
 
 ## Endpoints
@@ -177,3 +177,6 @@ We also provided some input examples.
 
 ## Style Check Report
   ![image](https://github.com/user-attachments/assets/a51f14f0-8641-44e9-b21b-c9ba31aec585)
+
+## Code Coverage Report
+<img width="994" alt="image" src="https://github.com/user-attachments/assets/9fa4a805-2deb-40af-9022-f5283a68462a">
