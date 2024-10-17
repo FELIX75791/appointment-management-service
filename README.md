@@ -174,3 +174,6 @@ We also provided some input examples.
 - Get all appointment history of one provider with one user. This requires provider id and a user id. This endpoint should get a list of map.
 
 - **Upon Success:** `HTTP 200` status code is returned along with with the hirtory object.
+
+## Style Check Report
+  ![image](https://github.com/user-attachments/assets/a51f14f0-8641-44e9-b21b-c9ba31aec585)
