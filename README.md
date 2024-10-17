@@ -26,10 +26,6 @@ In order to build and use our service, you must install the following dependenci
 We provided unit tests under the directory src/test
 You are welcome to test our end points after running an instance. We recommend using Postman or Bruno
 
-## Endpoints
-
-This section describes the endpoints that our service provides, as well as their inputs and outputs.
-We also provided some input examples.
 
 
 ## Running a Cloud Based Instance
