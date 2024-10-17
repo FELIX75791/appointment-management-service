@@ -215,3 +215,7 @@ To run the Checkstyle checks locally and generate a report, use the following Ma
 mvn checkstyle:checkstyle
 ```
 ![Style Check Report](appointment-management/src/Report/stylecheck.png)
+
+## Project Management
+
+Our project is managed through Jira. You can view our work and progress by visiting [our Jira board](https://columbia-team-dljl.atlassian.net/jira/software/projects/SCRUM/boards/1?atlOrigin=eyJpIjoiNTQ2ZjhkNmU2OTMwNDQ1YjllN2ViYzUyZjVhMDRjYmYiLCJwIjoiaiJ9).
