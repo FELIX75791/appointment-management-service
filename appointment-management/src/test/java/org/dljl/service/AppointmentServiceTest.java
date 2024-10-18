@@ -27,20 +27,28 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** The type Appointment service test. */
+/**
+ * The type Appointment service test.
+ */
 public class AppointmentServiceTest {
 
-  @Mock private AppointmentMapper appointmentMapper;
+  @Mock
+  private AppointmentMapper appointmentMapper;
 
-  @InjectMocks private AppointmentServiceImpl appointmentService;
+  @InjectMocks
+  private AppointmentServiceImpl appointmentService;
 
-  /** Sets up. */
+  /**
+   * Sets up.
+   */
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this); // Initialize mocks
   }
 
-  /** Test create appointment no conflicts success. */
+  /**
+   * Test create appointment no conflicts success.
+   */
   @Test
   void testCreateAppointment_noConflicts_success() {
 
@@ -66,7 +74,9 @@ public class AppointmentServiceTest {
     verify(appointmentMapper).createAppointment(any(Appointment.class));
   }
 
-  /** Test create appointment time conflict throws exception. */
+  /**
+   * Test create appointment time conflict throws exception.
+   */
   @Test
   void testCreateAppointment_timeConflict_throwsException() {
 
@@ -100,8 +110,8 @@ public class AppointmentServiceTest {
     });
 
     assertEquals(
-            "The selected time slot is not available or conflicts with an existing appointment.",
-            exception.getMessage());
+        "The selected time slot is not available or conflicts with an existing appointment.",
+        exception.getMessage());
   }
 
   @Test
@@ -112,7 +122,7 @@ public class AppointmentServiceTest {
     appointmentDto.setEndDateTime(LocalDateTime.of(2024, 10, 15, 11, 0));
 
     when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any()))
-            .thenThrow(new RuntimeException("System Error"));
+        .thenThrow(new RuntimeException("System Error"));
 
     RuntimeException exception = assertThrows(RuntimeException.class, () -> {
       appointmentService.createAppointment(appointmentDto);
@@ -122,7 +132,9 @@ public class AppointmentServiceTest {
   }
 
 
-  /** Test get appointment history service layer. */
+  /**
+   * Test get appointment history service layer.
+   */
   @Test
   public void testGetAppointmentHistory_ServiceLayer() {
     // Creating mock data
@@ -181,13 +193,13 @@ public class AppointmentServiceTest {
     when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any())).thenReturn(1);
 
     IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> appointmentService.createBlock(blockDto)
+        IllegalArgumentException.class,
+        () -> appointmentService.createBlock(blockDto)
     );
 
     assertEquals("The selected time slot is not available or conflicts "
-            + "with an existing appointment. To block this time, please cancel "
-            + "the conflicting appointment or block.", exception.getMessage());
+        + "with an existing appointment. To block this time, please cancel "
+        + "the conflicting appointment or block.", exception.getMessage());
   }
 
   @Test
@@ -233,7 +245,7 @@ public class AppointmentServiceTest {
     });
 
     assertEquals("Appointment ID is required for updating an appointment.",
-            exception.getMessage());
+        exception.getMessage());
   }
 
 
@@ -247,12 +259,12 @@ public class AppointmentServiceTest {
     when(appointmentMapper.checkUpdateTimeConflict(anyLong(), any(), any())).thenReturn(1);
 
     IllegalArgumentException exception = assertThrows(
-            IllegalArgumentException.class,
-            () -> appointmentService.updateAppointment(updateDto)
+        IllegalArgumentException.class,
+        () -> appointmentService.updateAppointment(updateDto)
     );
 
     assertEquals("The selected time slot conflicts with an existing appointment.",
-            exception.getMessage());
+        exception.getMessage());
   }
 
   @Test
@@ -269,8 +281,8 @@ public class AppointmentServiceTest {
     });
 
     assertEquals(
-            "The selected time slot conflicts with an existing appointment.",
-            exception.getMessage());
+        "The selected time slot conflicts with an existing appointment.",
+        exception.getMessage());
   }
 
 
@@ -298,7 +310,7 @@ public class AppointmentServiceTest {
   void testGetAvailableTimeIntervals_noAppointments_returnsFullDay() {
     LocalDate date = LocalDate.of(2024, 10, 15);
     when(appointmentMapper.getAppointmentsByProviderAndDate(anyLong(), any()))
-            .thenReturn(Arrays.asList());
+        .thenReturn(Arrays.asList());
 
     List<List<LocalDateTime>> result = appointmentService.getAvailableTimeIntervals(1L, date);
 
@@ -318,7 +330,7 @@ public class AppointmentServiceTest {
     appointment2.setEndDateTime(LocalDateTime.of(2024, 10, 15, 14, 0));
 
     when(appointmentMapper.getAppointmentsByProviderAndDate(anyLong(), any()))
-            .thenReturn(Arrays.asList(appointment1, appointment2));
+        .thenReturn(Arrays.asList(appointment1, appointment2));
 
     LocalDate date = LocalDate.of(2024, 10, 15);
 
@@ -335,7 +347,7 @@ public class AppointmentServiceTest {
   void testGetAvailableTimeIntervals_withNoAppointments() {
     LocalDate date = LocalDate.of(2024, 10, 15);
     when(appointmentMapper.getAppointmentsByProviderAndDate(anyLong(), any()))
-            .thenReturn(Arrays.asList());
+        .thenReturn(Arrays.asList());
 
     List<List<LocalDateTime>> result = appointmentService.getAvailableTimeIntervals(1L, date);
 
@@ -355,7 +367,7 @@ public class AppointmentServiceTest {
     appointment2.setEndDateTime(LocalDateTime.of(2024, 10, 15, 15, 0));
 
     when(appointmentMapper.getAppointmentsByProviderAndDate(anyLong(), any()))
-            .thenReturn(Arrays.asList(appointment1, appointment2));
+        .thenReturn(Arrays.asList(appointment1, appointment2));
 
     LocalDate date = LocalDate.of(2024, 10, 15);
 
@@ -379,7 +391,7 @@ public class AppointmentServiceTest {
     appointment2.setEndDateTime(LocalDateTime.of(2024, 10, 15, 15, 0));
 
     when(appointmentMapper.getAppointmentsByProviderAndDate(anyLong(), any()))
-            .thenReturn(Arrays.asList(appointment1, appointment2));
+        .thenReturn(Arrays.asList(appointment1, appointment2));
 
     LocalDate date = LocalDate.of(2024, 10, 15);
 
@@ -426,7 +438,7 @@ public class AppointmentServiceTest {
   }
 
   @Test
-  void testUpdateAppointmentEntityGetAppointmentID() {
+  void testUpdateAppointmentEntityGetAppointmentId() {
     Appointment appointment = new Appointment();
     appointment.setAppointmentId(10L);
     assertEquals(10L, appointment.getAppointmentId());
@@ -446,7 +458,8 @@ public class AppointmentServiceTest {
     appointment2.setStartDateTime(LocalDateTime.of(2024, 10, 16, 14, 0));
     appointment2.setEndDateTime(LocalDateTime.of(2024, 10, 16, 15, 0));
 
-    when(appointmentMapper.getAppointmentsByProviderId(1L)).thenReturn(Arrays.asList(appointment1, appointment2));
+    when(appointmentMapper.getAppointmentsByProviderId(1L)).thenReturn(
+        Arrays.asList(appointment1, appointment2));
 
     List<Appointment> result = appointmentService.getAppointmentsByProviderId(1L);
 
@@ -478,7 +491,6 @@ public class AppointmentServiceTest {
 
   @Test
   void testGetAppointmentsByProviderAndDate_success() {
-    LocalDate appointmentDate = LocalDate.of(2024, 10, 15);
 
     Appointment appointment1 = new Appointment();
     appointment1.setProviderId(1L);
@@ -492,9 +504,13 @@ public class AppointmentServiceTest {
     appointment2.setStartDateTime(LocalDateTime.of(2024, 10, 15, 14, 0));
     appointment2.setEndDateTime(LocalDateTime.of(2024, 10, 15, 15, 0));
 
-    when(appointmentMapper.getAppointmentsByProviderAndDate(1L, appointmentDate)).thenReturn(Arrays.asList(appointment1, appointment2));
+    LocalDate appointmentDate = LocalDate.of(2024, 10, 15);
 
-    List<Appointment> result = appointmentService.getAppointmentsByProviderAndDate(1L, appointmentDate);
+    when(appointmentMapper.getAppointmentsByProviderAndDate(1L, appointmentDate)).thenReturn(
+        Arrays.asList(appointment1, appointment2));
+
+    List<Appointment> result = appointmentService.getAppointmentsByProviderAndDate(1L,
+        appointmentDate);
 
     assertEquals(2, result.size());
     assertEquals(2L, result.get(0).getUserId());

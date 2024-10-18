@@ -25,12 +25,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** The type Appointment controller. */
+/**
+ * The type Appointment controller.
+ */
 @RestController
 @RequestMapping("/appointments")
 public class AppointmentController {
 
-  @Autowired private AppointmentService appointmentService;
+  @Autowired
+  private AppointmentService appointmentService;
 
   /**
    * Create appointment response entity.
@@ -162,7 +165,7 @@ public class AppointmentController {
   /**
    * Gets appointments by provider and date.
    *
-   * @param providerId the provider id
+   * @param providerId      the provider id
    * @param appointmentDate the appointment date
    * @return the appointments by provider and date
    */
@@ -171,7 +174,7 @@ public class AppointmentController {
   public ResponseEntity<List<Appointment>> getAppointmentsByProviderAndDate(
       @PathVariable("providerId") Long providerId,
       @PathVariable("appointmentDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-          LocalDate appointmentDate) {
+      LocalDate appointmentDate) {
     List<Appointment> appointments =
         appointmentService.getAppointmentsByProviderAndDate(providerId, appointmentDate);
     return ResponseEntity.ok(appointments);
@@ -180,7 +183,7 @@ public class AppointmentController {
   /**
    * Gets available time intervals.
    *
-   * @param providerId the provider id
+   * @param providerId      the provider id
    * @param appointmentDate the appointment date
    * @return the available time intervals
    */
@@ -189,7 +192,7 @@ public class AppointmentController {
   public ResponseEntity<List<List<LocalDateTime>>> getAvailableTimeIntervals(
       @PathVariable("providerId") Long providerId,
       @PathVariable("appointmentDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-          LocalDate appointmentDate) {
+      LocalDate appointmentDate) {
     List<List<LocalDateTime>> availableTimeIntervals =
         appointmentService.getAvailableTimeIntervals(providerId, appointmentDate);
     return ResponseEntity.ok(availableTimeIntervals);
@@ -199,7 +202,7 @@ public class AppointmentController {
    * Gets appointment history.
    *
    * @param providerId the provider id
-   * @param userId the user id
+   * @param userId     the user id
    * @return the appointment history
    */
   @GetMapping("/history")

@@ -210,7 +210,13 @@ To run the Checkstyle checks locally and generate a report, use the following Ma
 ```bash
 mvn checkstyle:checkstyle
 ```
-![Style Check Report](appointment-management/src/Report/stylecheck.png)
+![Style Check Report](reports/stylecheck.png)
+
+## Static Analysis
+
+We used the tool **PMD** to as the static checker to find potential bugs and bad practices. We used the default ruleset from PMD.
+
+![PMD](reports/pmd.png)
 
 ## Project Management
 
