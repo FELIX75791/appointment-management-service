@@ -263,7 +263,7 @@ public class AppointmentServiceTest {
         () -> appointmentService.updateAppointment(updateDto)
     );
 
-    assertEquals("The selected time slot conflicts with an existing appointment.",
+    assertEquals("The updated time slot conflicts with an existing appointment or blocked time.",
         exception.getMessage());
   }
 
@@ -281,7 +281,7 @@ public class AppointmentServiceTest {
     });
 
     assertEquals(
-        "The selected time slot conflicts with an existing appointment.",
+        "The updated time slot conflicts with an existing appointment or blocked time.",
         exception.getMessage());
   }
 
