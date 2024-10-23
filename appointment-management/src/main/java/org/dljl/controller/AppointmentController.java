@@ -104,13 +104,13 @@ public class AppointmentController {
    */
   // Update an appointment
   @PutMapping("/update")
-  public ResponseEntity<Appointment> updateAppointment(
+  public ResponseEntity<?> updateAppointment(
       @RequestBody UpdateAppointmentDto appointmentDto) {
     try {
       Appointment updatedAppointment = appointmentService.updateAppointment(appointmentDto);
       return ResponseEntity.ok(updatedAppointment);
     } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest().body(null);
+      return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
 

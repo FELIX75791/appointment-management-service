@@ -128,19 +128,29 @@ public class AppointmentServiceImpl implements AppointmentService {
 
   @Override
   public Appointment updateAppointment(UpdateAppointmentDto appointmentDto) {
-    int conflictCount =
-        appointmentMapper.checkUpdateTimeConflict(
-            appointmentDto.getAppointmentId(),
-            appointmentDto.getStartDateTime().truncatedTo(ChronoUnit.SECONDS),
-            appointmentDto.getEndDateTime().truncatedTo(ChronoUnit.SECONDS));
-
-    if (conflictCount != 0) {
-      throw new IllegalArgumentException(
-          "The selected time slot conflicts with an existing appointment.");
-    }
 
     if (appointmentDto.getAppointmentId() == null) {
       throw new IllegalArgumentException("Appointment ID is required for updating an appointment.");
+    }
+    if (appointmentDto.getStartDateTime() != null || appointmentDto.getEndDateTime() != null) {
+      Appointment originalAppointment = getAppointment(appointmentDto.getAppointmentId());
+      if (appointmentDto.getStartDateTime() == null) {
+        appointmentDto.setStartDateTime(originalAppointment.getStartDateTime());
+      }
+      if (appointmentDto.getEndDateTime() == null) {
+        appointmentDto.setEndDateTime(originalAppointment.getEndDateTime());
+      }
+
+      int conflictCount =
+          appointmentMapper.checkUpdateTimeConflict(
+              appointmentDto.getAppointmentId(),
+              appointmentDto.getStartDateTime().truncatedTo(ChronoUnit.SECONDS),
+              appointmentDto.getEndDateTime().truncatedTo(ChronoUnit.SECONDS));
+
+      if (conflictCount != 0) {
+        throw new IllegalArgumentException(
+            "The updated time slot conflicts with an existing appointment or blocked time.");
+      }
     }
 
     appointmentMapper.updateAppointment(appointmentDto);
