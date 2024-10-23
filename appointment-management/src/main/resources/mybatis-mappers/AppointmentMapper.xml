@@ -157,5 +157,9 @@
         WHERE appointment_id = #{appointmentId}
     </update>
 
-
+    <!-- Cancel an appointment by setting status to 'cancelled' -->
+    <delete id="deleteBlock" parameterType="Long">
+        DELETE FROM appointments
+        WHERE appointment_id = #{id}
+    </delete>
 </mapper>

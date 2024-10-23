@@ -2,7 +2,7 @@ package org.dljl.controller;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,20 +19,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class ClientController {
 
   /**
-   * Endpoint to register a new client. This endpoint generates a unique client ID using UUID and
-   * returns it in the response. It also provides a message instructing the client to save the
-   * generated ID.
+   * Endpoint to register a new client. This endpoint generates a unique client ID using a
+   * combination of the current timestamp and random numbers to avoid collisions. It returns the
+   * client ID as a long and a message instructing the client to save the generated ID.
    *
    * @return ResponseEntity containing a map with the generated client ID and an advisory message.
    *     The HTTP status code for the response is 201 (Created).
    */
   @PostMapping("/registerClient")
-  public ResponseEntity<Map<String, String>> registerClient() {
-    // Generate UUID for the client ID
-    String clientId = UUID.randomUUID().toString();
+  public ResponseEntity<Map<String, Object>> registerClient() {
+    // Generate unique client ID using current timestamp and random number
+    long currentTimeMillis = System.currentTimeMillis();
+    long randomPart = ThreadLocalRandom.current().nextLong(1000, 9999);
+    long clientId = currentTimeMillis * 10000 + randomPart;
 
     // Prepare response with client ID and message
-    Map<String, String> response = new HashMap<>();
+    Map<String, Object> response = new HashMap<>();
     response.put("client_id", clientId);
     response.put(
         "message",

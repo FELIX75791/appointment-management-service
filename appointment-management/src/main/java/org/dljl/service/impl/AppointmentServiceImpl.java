@@ -184,6 +184,15 @@ public class AppointmentServiceImpl implements AppointmentService {
   }
 
   @Override
+  public boolean deleteBlock(Long id) {
+    // Call the mapper to cancel the appointment
+    int rowsAffected = appointmentMapper.deleteBlock(id);
+
+    // If rowsAffected is 1, the appointment was successfully cancelled; otherwise, it was not found
+    return rowsAffected == 1;
+  }
+
+  @Override
   public List<List<LocalDateTime>> getAvailableTimeIntervals(Long providerId, LocalDate date) {
 
     List<Appointment> appointments =

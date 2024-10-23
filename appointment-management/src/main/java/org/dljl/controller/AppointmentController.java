@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,15 +26,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * The type Appointment controller.
- */
+/** The type Appointment controller. */
 @RestController
 @RequestMapping("/appointments")
 public class AppointmentController {
 
-  @Autowired
-  private AppointmentService appointmentService;
+  @Autowired private AppointmentService appointmentService;
 
   /**
    * Create appointment response entity.
@@ -104,8 +102,7 @@ public class AppointmentController {
    */
   // Update an appointment
   @PutMapping("/update")
-  public ResponseEntity<?> updateAppointment(
-      @RequestBody UpdateAppointmentDto appointmentDto) {
+  public ResponseEntity<?> updateAppointment(@RequestBody UpdateAppointmentDto appointmentDto) {
     try {
       Appointment updatedAppointment = appointmentService.updateAppointment(appointmentDto);
       return ResponseEntity.ok(updatedAppointment);
@@ -128,6 +125,26 @@ public class AppointmentController {
       return ResponseEntity.ok("Appointment cancelled successfully.");
     } else {
       return ResponseEntity.badRequest().body("Appointment not found or already cancelled.");
+    }
+  }
+
+  /**
+   * Delete a block entity. This will permanently delete a block from database to avoid unnecessary
+   * storage usage. This can potentially be used on appointment as well but do so will result in
+   * loss of user history. We did not enforce this API to be used on block only to give developer
+   * full control, but use carefully.
+   *
+   * @param id the block id
+   * @return the response entity
+   */
+  // Cancel an appointment
+  @DeleteMapping("/deleteBlock/{id}")
+  public ResponseEntity<String> deleteBlock(@PathVariable Long id) {
+    boolean isCancelled = appointmentService.deleteBlock(id);
+    if (isCancelled) {
+      return ResponseEntity.ok("Block cancelled successfully.");
+    } else {
+      return ResponseEntity.badRequest().body("Block not found or already deleted.");
     }
   }
 
@@ -165,7 +182,7 @@ public class AppointmentController {
   /**
    * Gets appointments by provider and date.
    *
-   * @param providerId      the provider id
+   * @param providerId the provider id
    * @param appointmentDate the appointment date
    * @return the appointments by provider and date
    */
@@ -174,7 +191,7 @@ public class AppointmentController {
   public ResponseEntity<List<Appointment>> getAppointmentsByProviderAndDate(
       @PathVariable("providerId") Long providerId,
       @PathVariable("appointmentDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-      LocalDate appointmentDate) {
+          LocalDate appointmentDate) {
     List<Appointment> appointments =
         appointmentService.getAppointmentsByProviderAndDate(providerId, appointmentDate);
     return ResponseEntity.ok(appointments);
@@ -183,7 +200,7 @@ public class AppointmentController {
   /**
    * Gets available time intervals.
    *
-   * @param providerId      the provider id
+   * @param providerId the provider id
    * @param appointmentDate the appointment date
    * @return the available time intervals
    */
@@ -192,7 +209,7 @@ public class AppointmentController {
   public ResponseEntity<List<List<LocalDateTime>>> getAvailableTimeIntervals(
       @PathVariable("providerId") Long providerId,
       @PathVariable("appointmentDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-      LocalDate appointmentDate) {
+          LocalDate appointmentDate) {
     List<List<LocalDateTime>> availableTimeIntervals =
         appointmentService.getAvailableTimeIntervals(providerId, appointmentDate);
     return ResponseEntity.ok(availableTimeIntervals);
@@ -202,7 +219,7 @@ public class AppointmentController {
    * Gets appointment history.
    *
    * @param providerId the provider id
-   * @param userId     the user id
+   * @param userId the user id
    * @return the appointment history
    */
   @GetMapping("/history")

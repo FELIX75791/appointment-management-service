@@ -45,12 +45,20 @@ public interface AppointmentService {
   Appointment updateAppointment(UpdateAppointmentDto appointmentDto);
 
   /**
-   * Cancel appointment boolean.
+   * Cancel appointment.
    *
    * @param id the id
    * @return the boolean
    */
   boolean cancelAppointment(Long id);
+
+  /**
+   * Delete block.
+   *
+   * @param id the id
+   * @return the boolean whether block is deleted.
+   */
+  boolean deleteBlock(Long id);
 
   /**
    * Gets appointment.
