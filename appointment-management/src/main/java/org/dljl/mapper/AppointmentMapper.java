@@ -97,4 +97,13 @@ public interface AppointmentMapper {
    */
   // Get all history by given provider and user
   List<Appointment> findAppointmentsByProviderAndUser(Long providerId, Long userId);
+
+  /**
+   * Delete block.
+   *
+   * @param id the id
+   * @return num rows affected
+   */
+  // delete the block permanently
+  int deleteBlock(Long id);
 }
