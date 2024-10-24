@@ -2,6 +2,7 @@ package org.dljl.controller;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -230,7 +231,12 @@ public class AppointmentController {
         appointmentService.getAppointmentHistory(providerId, userId);
 
     if (appointmentHistory.isEmpty()) {
-      return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+      // Add a custom message to the response list
+      Map<String, Object> message = new HashMap<>();
+      message.put("message", "No appointment history found for the given provider and user.");
+      List<Map<String, Object>> response = new ArrayList<>();
+      response.add(message);
+      return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     // Customize the output
