@@ -29,7 +29,7 @@ You are welcome to test our end points after running an instance. We recommend u
 
 
 ## Running a Cloud Based Instance
-
+We have deployed a cloud instance of our service on Google Cloud Platform. To access our service on cloud, go to https://coms4156-436119.ue.r.appspot.com 
 
 ## Running test
 We provided unit tests under the directory src/test. You can also test by running <code>mvn clean test</code> 
