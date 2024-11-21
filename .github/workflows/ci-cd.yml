@@ -1,0 +1,41 @@
+name: Appointment-Management-Service CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Cache Maven Dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/appointment-management/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
+    # Build Project
+    - name: Build with Maven
+      working-directory: appointment-management
+      run: mvn clean install
+
+    #Run tests
+    - name: Run Tests
+      working-directory: appointment-management
+      run: mvn test
