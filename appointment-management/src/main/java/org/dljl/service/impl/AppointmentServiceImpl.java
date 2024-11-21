@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.dljl.dto.CreateAppointmentDto;
 import org.dljl.dto.CreateBlockDto;
+import org.dljl.dto.CreateRecurringBlockDto;
 import org.dljl.dto.CreateRecurringBlockInOneYearDto;
 import org.dljl.dto.UpdateAppointmentDto;
 import org.dljl.entity.Appointment;
@@ -258,4 +259,47 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     return appointmentMapper.getAppointmentsWithinDateRange(providerId, startDate, endDate);
   }
+
+  @Override
+  public String createRecurringBlock(CreateRecurringBlockDto blockDto) {
+
+    if (blockDto.getProviderId() == null) {
+      throw new IllegalArgumentException("Provider ID Can't be null.");
+    }
+
+    Long providerId = blockDto.getProviderId();
+    LocalTime startTime = blockDto.getStartTime();
+    LocalTime endTime = blockDto.getEndTime();
+    LocalDate startDate = blockDto.getStartDate();
+    LocalDate endDate = blockDto.getEndDate();
+
+    StringBuilder conflictDates = new StringBuilder();
+    boolean hasConflict = false;
+
+    // Step 1: Check for conflicts across the entire year
+    for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+      LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
+      LocalDateTime endDateTime = LocalDateTime.of(date, endTime);
+
+      CreateBlockDto singleDayBlockDto = new CreateBlockDto();
+      singleDayBlockDto.setProviderId(providerId);
+      singleDayBlockDto.setStartDateTime(startDateTime);
+      singleDayBlockDto.setEndDateTime(endDateTime);
+
+      try {
+        createBlock(singleDayBlockDto);
+      } catch (IllegalArgumentException e) {
+        hasConflict = true;
+        conflictDates.append(date).append("\n");
+      }
+    }
+
+    // Step 2: Return result based on whether conflicts were found
+    if (hasConflict) {
+      return "Conflicts found on the following dates: \n" + conflictDates.toString();
+    } else {
+      return "Recurring block created successfully from " + startDate.toString() + " to " + endDate.toString();
+    }
+  }
+
 }
