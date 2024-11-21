@@ -3,10 +3,10 @@ name: Appointment-Management-Service CI/CD
 on:
   push:
     branches:
-      - main
+      - ljc-2ndIteration
   pull_request:
     branches:
-      - main
+      - ljc-2ndIteration
 
 jobs:
   build:
