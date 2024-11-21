@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.dljl.dto.CreateAppointmentDto;
 import org.dljl.dto.CreateBlockDto;
+import org.dljl.dto.CreateRecurringBlockDto;
 import org.dljl.dto.CreateRecurringBlockInOneYearDto;
 import org.dljl.dto.UpdateAppointmentDto;
 import org.dljl.entity.Appointment;
@@ -112,4 +113,12 @@ public interface AppointmentService {
    * @return the list of appointments within the specified date range
    */
   List<Appointment> getAppointmentsWithinDateRange(Long providerId, LocalDate startDate, LocalDate endDate);
+
+    /**
+   * Create recurring block.
+   *
+   * @param blockDto the block dto
+   * @return the string
+   */
+  String createRecurringBlock(CreateRecurringBlockDto blockDto);
 }
