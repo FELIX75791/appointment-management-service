@@ -106,4 +106,14 @@ public interface AppointmentMapper {
    */
   // delete the block permanently
   int deleteBlock(Long id);
+
+  /**
+   * Gets appointments within a date range for a provider.
+   *
+   * @param providerId the provider id
+   * @param startDate the start date
+   * @param endDate the end date
+   * @return the list of appointments within the specified date range
+   */
+  List<Appointment> getAppointmentsWithinDateRange(Long providerId, LocalDate startDate, LocalDate endDate);
 }

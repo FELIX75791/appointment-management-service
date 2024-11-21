@@ -243,4 +243,19 @@ public class AppointmentServiceImpl implements AppointmentService {
   public List<Appointment> getAppointmentHistory(Long providerId, Long userId) {
     return appointmentMapper.findAppointmentsByProviderAndUser(providerId, userId);
   }
+
+  @Override
+  public List<Appointment> getAppointmentsWithinDateRange(Long providerId, LocalDate startDate, LocalDate endDate) {
+    if (providerId == null) {
+      throw new IllegalArgumentException("Provider ID cannot be null.");
+    }
+    if (startDate == null || endDate == null) {
+      throw new IllegalArgumentException("Start date and end date cannot be null.");
+    }
+    if (startDate.isAfter(endDate)) {
+      throw new IllegalArgumentException("Start date cannot be after end date.");
+    }
+
+    return appointmentMapper.getAppointmentsWithinDateRange(providerId, startDate, endDate);
+  }
 }

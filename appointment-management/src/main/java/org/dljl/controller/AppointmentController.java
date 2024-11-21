@@ -257,4 +257,29 @@ public class AppointmentController {
 
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
+
+  /**
+   * Gets appointments within a date range for a provider.
+   *
+   * @param providerId the provider id
+   * @param startDate the start date of the range
+   * @param endDate the end date of the range
+   * @return the appointments within the date range
+   */
+  @GetMapping("/provider/{providerId}/appointments")
+  public ResponseEntity<List<Appointment>> getAppointmentsWithinDateRange(
+    @PathVariable Long providerId,
+    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+    try {
+      List<Appointment> appointments =
+          appointmentService.getAppointmentsWithinDateRange(providerId, startDate, endDate);
+      return ResponseEntity.ok(appointments);
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(null);
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    }
+  }
+
 }
