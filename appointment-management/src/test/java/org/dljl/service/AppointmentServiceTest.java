@@ -1,14 +1,11 @@
 package org.dljl.service;
 
+import org.dljl.dto.CreateRecurringBlockDto;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,13 +20,18 @@ import org.dljl.mapper.AppointmentMapper;
 import org.dljl.service.impl.AppointmentServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.*;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * The type Appointment service test.
  */
+@ExtendWith(MockitoExtension.class)
 public class AppointmentServiceTest {
 
   @Mock
@@ -517,5 +519,65 @@ public class AppointmentServiceTest {
     assertEquals(3L, result.get(1).getUserId());
     verify(appointmentMapper).getAppointmentsByProviderAndDate(1L, appointmentDate);
   }
+  @Test
+  void testGetAppointmentsWithinDateRange_success() {
+    Appointment appointment1 = new Appointment();
+    appointment1.setAppointmentId(1L);
+    appointment1.setProviderId(1L);
+    appointment1.setUserId(2L);
+    appointment1.setStartDateTime(LocalDateTime.of(2024, 11, 1, 10, 0));
+    appointment1.setEndDateTime(LocalDateTime.of(2024, 11, 1, 11, 0));
+
+    Appointment appointment2 = new Appointment();
+    appointment2.setAppointmentId(2L);
+    appointment2.setProviderId(1L);
+    appointment2.setUserId(3L);
+    appointment2.setStartDateTime(LocalDateTime.of(2024, 11, 2, 14, 0));
+    appointment2.setEndDateTime(LocalDateTime.of(2024, 11, 2, 15, 0));
+
+    List<Appointment> appointments = Arrays.asList(appointment1, appointment2);
+
+    LocalDate startDate = LocalDate.of(2024, 11, 1);
+    LocalDate endDate = LocalDate.of(2024, 11, 2);
+
+    when(appointmentMapper.getAppointmentsWithinDateRange(1L, startDate, endDate)).thenReturn(appointments);
+
+    List<Appointment> result = appointmentService.getAppointmentsWithinDateRange(1L, startDate, endDate);
+
+    assertNotNull(result);
+    assertEquals(2, result.size());
+    assertEquals(2L, result.get(0).getUserId());
+    assertEquals(3L, result.get(1).getUserId());
+    verify(appointmentMapper).getAppointmentsWithinDateRange(1L, startDate, endDate);
+  }
+
+
+  @Test
+  void testGetAppointmentsWithinDateRange_nullProviderId() {
+    LocalDate startDate = LocalDate.of(2024, 11, 1);
+    LocalDate endDate = LocalDate.of(2024, 11, 2);
+
+    IllegalArgumentException exception = assertThrows(
+      IllegalArgumentException.class,
+      () -> appointmentService.getAppointmentsWithinDateRange(null, startDate, endDate)
+    );
+
+    assertEquals("Provider ID cannot be null.", exception.getMessage());
+  }
+
+
+  @Test
+  void testCreateRecurringBlock_nullProviderId() {
+    CreateRecurringBlockDto blockDto = new CreateRecurringBlockDto();
+    blockDto.setProviderId(null);
+
+    IllegalArgumentException exception = assertThrows(
+      IllegalArgumentException.class,
+      () -> appointmentService.createRecurringBlock(blockDto)
+    );
+
+    assertEquals("Provider ID Can't be null.", exception.getMessage());
+  }
+
 
 }
