@@ -172,4 +172,5 @@ public class AppointmentControllerTest {
         .andExpect(status().isBadRequest())
         .andExpect(content().string("Provider ID cannot be null"));
   }
+
 }
