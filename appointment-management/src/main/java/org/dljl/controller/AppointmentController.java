@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.dljl.dto.CreateAppointmentDto;
 import org.dljl.dto.CreateBlockDto;
+import org.dljl.dto.CreateRecurringBlockDto;
 import org.dljl.dto.CreateRecurringBlockInOneYearDto;
 import org.dljl.dto.UpdateAppointmentDto;
 import org.dljl.entity.Appointment;
@@ -279,6 +280,27 @@ public class AppointmentController {
       return ResponseEntity.badRequest().body(null);
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    }
+  }
+
+  /**
+   * Create recurring block in one year response entity.
+   *
+   * @param blockDto the block dto
+   * @return the response entity
+   */
+  // Create a recurring block for one year
+  @PostMapping("/createRecurringBlock")
+  public ResponseEntity<String> createRecurringBlock(
+      @RequestBody CreateRecurringBlockDto blockDto) {
+    try {
+      String result = appointmentService.createRecurringBlock(blockDto);
+      return new ResponseEntity<>(result, HttpStatus.CREATED);
+    } catch (IllegalArgumentException e) {
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    } catch (Exception e) {
+      return new ResponseEntity<>(
+          "An unexpected error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
