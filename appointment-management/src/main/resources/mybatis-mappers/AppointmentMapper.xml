@@ -84,6 +84,24 @@
           AND DATE (start_date_time) = #{appointmentDate}
     </select>
 
+    <!-- Get appointments within a date range for a provider -->
+    <select id="getAppointmentsWithinDateRange" resultMap="appointmentResultMap">
+        SELECT appointment_id,
+        provider_id,
+        user_id,
+        start_date_time,
+        end_date_time,
+        status,
+        service_type,
+        comments
+        FROM appointments
+        WHERE provider_id = #{providerId}
+        AND start_date_time >= #{startDate}
+        AND end_date_time <= #{endDate}
+        AND status != 'cancelled'
+        ORDER BY start_date_time;
+    </select>
+
     <!-- Check for update appointment time conflicts -->
     <select id="checkUpdateTimeConflict" resultType="int" parameterType="map">
         SELECT COUNT(*)
