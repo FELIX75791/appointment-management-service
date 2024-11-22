@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.List;
 import org.dljl.dto.CreateAppointmentDto;
 import org.dljl.dto.CreateBlockDto;
+import org.dljl.dto.CreateRecurringBlockDto;
+import org.dljl.dto.CreateRecurringBlockInOneYearDto;
 import org.dljl.dto.UpdateAppointmentDto;
 import org.dljl.entity.Appointment;
 import org.dljl.mapper.AppointmentMapper;
@@ -24,6 +26,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -579,5 +584,63 @@ public class AppointmentServiceTest {
     assertEquals("Provider ID Can't be null.", exception.getMessage());
   }
 
+  @Test
+  void testCreateRecurringBlock() {
+    CreateRecurringBlockDto blockDto = new CreateRecurringBlockDto();
+    blockDto.setProviderId(1L);
+    blockDto.setStartTime(LocalTime.of( 8, 0));
+    blockDto.setEndTime(LocalTime.of( 19, 0));
+    blockDto.setStartDate(LocalDate.of(2024, 12, 24));
+    blockDto.setEndDate(LocalDate.of(2024, 12, 25));
+    when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any())).thenReturn(0);
+
+    String result = appointmentService.createRecurringBlock(blockDto);
+    //check success
+    assertEquals("Recurring block created successfully from 2024-12-24 to 2024-12-25", result);
+  }
+
+  @Test
+  void testCreateRecurringBlockConflict() {
+    Appointment appointment2 = new Appointment();
+    appointment2.setAppointmentId(2L);
+    appointment2.setProviderId(1L);
+    appointment2.setUserId(3L);
+    appointment2.setStartDateTime(LocalDateTime.of(2024, 12, 24, 14, 0));
+    appointment2.setEndDateTime(LocalDateTime.of(2024, 12, 24, 15, 0));
+    appointmentMapper.createAppointment(appointment2);
+    CreateRecurringBlockDto blockDto1 = new CreateRecurringBlockDto();
+    blockDto1.setProviderId(1L);
+    blockDto1.setStartTime(LocalTime.of( 8, 0));
+    blockDto1.setEndTime(LocalTime.of( 19, 0));
+    blockDto1.setStartDate(LocalDate.of(2024, 12, 24));
+    blockDto1.setEndDate(LocalDate.of(2024, 12, 25));
+    when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any())).thenReturn(1);
+
+    String result = appointmentService.createRecurringBlock(blockDto1);
+    //check success
+    assertEquals("Conflicts found on the following dates: \n" + 
+            "2024-12-24\n" + "2024-12-25\n", result);
+  }
+
+    @Test
+    void testCreateRecurringBlockInOneYear() {
+
+      CreateRecurringBlockInOneYearDto blockDto2 = new CreateRecurringBlockInOneYearDto();
+      blockDto2.setProviderId(1L);
+      blockDto2.setStartTime(LocalTime.of( 8, 0));
+      blockDto2.setEndTime(LocalTime.of( 19, 0));
+      when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any())).thenReturn(0);
+
+      String result2 = appointmentService.createRecurringBlockInOneYear(blockDto2);
+      //check success
+      assertEquals("Yearly recurring block created successfully.", result2);
+    }
+
+    @Test
+  void testDeleteAppointment() {
+    long id = 1;
+    assertEquals(false, appointmentService.deleteBlock(id));
+    
+  }
 
 }
