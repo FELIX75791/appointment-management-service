@@ -284,12 +284,12 @@ public class AppointmentController {
   }
 
   /**
-   * Create recurring block in one year response entity.
+   * Create recurring block in a period of time response entity.
    *
    * @param blockDto the block dto
    * @return the response entity
    */
-  // Create a recurring block for one year
+  // Create a recurring block from start date to end date
   @PostMapping("/createRecurringBlock")
   public ResponseEntity<String> createRecurringBlock(
       @RequestBody CreateRecurringBlockDto blockDto) {
