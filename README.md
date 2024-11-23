@@ -72,8 +72,8 @@ We also provided some input examples.
   ```json
     {
       "providerId": 1,
-      "startDateTime": "2024-010-01T10:00:00",
-      "endDateTime": "2024-010-01T21:00:00"
+      "startDateTime": "2024-10-01T10:00:00",
+      "endDateTime": "2024-10-01T21:00:00"
     }
 - **Expected Output:** `Message` (String)
 - Creates a single block. You need to provide a start date time, end date time and the provider id to create the block.
@@ -181,6 +181,32 @@ We also provided some input examples.
 - Get all appointment history of one provider with one user. This requires provider id and a user id. This endpoint should get a list of map.
 
 - **Upon Success:** `HTTP 200` status code is returned along with with the hirtory object.
+
+### GET /appointments/provider/{providerId}/appointments
+- **Expected Input Parameters:** `providerId` (PathVariable Long),  'startDate' (LocalDate), 'endDate' (LocalDate)
+- **Expected Output:**  `appointments` (List of Appointment)
+- Get all appointments of one provider within a period of time. This requires provider id and start date and end date. This endpoint should get a list of map.
+
+- **Upon Success:** `HTTP 200` status code is returned along with the appointments object.
+
+### POST /appointments/createRecurringBlock
+
+- **Expected Input Parameters:** `CreateRecurringBlockDto` (JSON)
+  ```json
+    {
+      "providerId": 1,
+      "startDate": "2024-10-01",
+      "endDate": "2024-10-02",
+      "startTime": "10:00:00",
+      "endTime": "21:00:00"
+    }
+- **Expected Output:** `Message` (String)
+- Creates blocks from start date to end date. You need to provide a start date, start time, end date, end time and the provider id to create the blocks.
+
+- **Upon Success:** `HTTP 201` status code is returned along with a message "Recurring Blocks Created Successfully from start date to end date" confirming the creation of the block.
+- **Upon Failure:**
+  - `HTTP 400` status code is returned if it has a conflict: "Conflicts found on the following dates: ..." or because of the provider id is null: "Provider ID Can't be null."
+  - `HTTP 500` status code is returned with the message "An unexpected error occurred: [error message]" if there is a server-side issue.
 
 ## Code Coverage Report
 

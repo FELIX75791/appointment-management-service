@@ -276,7 +276,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     StringBuilder conflictDates = new StringBuilder();
     boolean hasConflict = false;
 
-    // Step 1: Check for conflicts across the entire year
+    // Step 1: Check for conflicts from start date to end date
     for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
       LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
       LocalDateTime endDateTime = LocalDateTime.of(date, endTime);
