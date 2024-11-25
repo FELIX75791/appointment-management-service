@@ -115,5 +115,6 @@ public interface AppointmentMapper {
    * @param endDate the end date
    * @return the list of appointments within the specified date range
    */
-  List<Appointment> getAppointmentsWithinDateRange(Long providerId, LocalDate startDate, LocalDate endDate);
+  List<Appointment> getAppointmentsWithinDateRange(Long providerId, 
+      LocalDate startDate, LocalDate endDate);
 }

@@ -39,3 +39,13 @@ jobs:
     - name: Run Tests
       working-directory: appointment-management
       run: mvn test
+    
+    # Run PMD Analysis
+    - name: Run PMD
+      working-directory: appointment-management
+      run: mvn pmd:check
+
+      # Generate JaCoCo Coverage Report
+    - name: Generate JaCoCo Report
+      working-directory: appointment-management
+      run: mvn jacoco:report

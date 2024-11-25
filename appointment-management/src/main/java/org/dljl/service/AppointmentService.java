@@ -112,9 +112,10 @@ public interface AppointmentService {
    * @param endDate the end date
    * @return the list of appointments within the specified date range
    */
-  List<Appointment> getAppointmentsWithinDateRange(Long providerId, LocalDate startDate, LocalDate endDate);
+  List<Appointment> getAppointmentsWithinDateRange(Long providerId, 
+        LocalDate startDate, LocalDate endDate);
 
-    /**
+  /**
    * Create recurring block.
    *
    * @param blockDto the block dto

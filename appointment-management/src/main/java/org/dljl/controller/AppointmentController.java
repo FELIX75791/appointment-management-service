@@ -269,9 +269,9 @@ public class AppointmentController {
    */
   @GetMapping("/provider/{providerId}/appointments")
   public ResponseEntity<List<Appointment>> getAppointmentsWithinDateRange(
-    @PathVariable Long providerId,
-    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+      @PathVariable Long providerId,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
     try {
       List<Appointment> appointments =
           appointmentService.getAppointmentsWithinDateRange(providerId, startDate, endDate);
