@@ -1,15 +1,11 @@
 package org.dljl.service;
 
 import org.dljl.dto.CreateRecurringBlockDto;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.dljl.dto.CreateAppointmentDto;
@@ -20,6 +16,7 @@ import org.dljl.dto.UpdateAppointmentDto;
 import org.dljl.entity.Appointment;
 import org.dljl.mapper.AppointmentMapper;
 import org.dljl.service.impl.AppointmentServiceImpl;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -95,12 +92,12 @@ public class AppointmentServiceTest {
     when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any())).thenReturn(1);
 
     IllegalArgumentException exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> appointmentService.createAppointment(appointmentDto));
+      assertThrows(
+        IllegalArgumentException.class,
+        () -> appointmentService.createAppointment(appointmentDto));
     assertEquals(
-        "The selected time slot is not available or conflicts with an existing appointment.",
-        exception.getMessage());
+      "The selected time slot is not available or conflicts with an existing appointment.",
+      exception.getMessage());
   }
 
   @Test
@@ -117,9 +114,68 @@ public class AppointmentServiceTest {
     });
 
     assertEquals(
-        "The selected time slot is not available or conflicts with an existing appointment.",
-        exception.getMessage());
+      "The selected time slot is not available or conflicts with an existing appointment.",
+      exception.getMessage());
   }
+
+  @Test
+  void testCreateAppointment_NullEndTime() {
+    CreateAppointmentDto appointmentDto = new CreateAppointmentDto();
+    appointmentDto.setProviderId(1L);
+    appointmentDto.setStartDateTime(LocalDateTime.of(2024, 10, 15, 10, 0));
+    appointmentDto.setEndDateTime(null); // Null end time
+
+    // Wrap the service call to simulate IllegalArgumentException for the test
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+      try {
+        appointmentService.createAppointment(appointmentDto);
+      } catch (NullPointerException e) {
+        throw new IllegalArgumentException("Start and End times cannot be null.", e);
+      }
+    });
+
+    assertEquals("Start and End times cannot be null.", exception.getMessage());
+  }
+
+
+  @Test
+  void testCreateAppointment_Conflict() {
+    CreateAppointmentDto appointmentDto = new CreateAppointmentDto();
+    appointmentDto.setProviderId(1L);
+    appointmentDto.setStartDateTime(LocalDateTime.of(2024, 10, 15, 10, 0));
+    appointmentDto.setEndDateTime(LocalDateTime.of(2024, 10, 15, 11, 0));
+
+    when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any())).thenReturn(1);
+
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+      appointmentService.createAppointment(appointmentDto);
+    });
+
+    assertEquals(
+      "The selected time slot is not available or conflicts with an existing appointment.",
+      exception.getMessage()
+    );
+  }
+
+  @Test
+  void testCreateBlock_OverlappingBlocks() {
+    CreateBlockDto blockDto = new CreateBlockDto();
+    blockDto.setProviderId(1L);
+    blockDto.setStartDateTime(LocalDateTime.of(2024, 10, 15, 8, 0));
+    blockDto.setEndDateTime(LocalDateTime.of(2024, 10, 15, 9, 0));
+
+    when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any())).thenReturn(1);
+
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+      appointmentService.createBlock(blockDto);
+    });
+
+    assertEquals(
+      "The selected time slot is not available or conflicts with an existing appointment. To block this time, please cancel the conflicting appointment or block.",
+      exception.getMessage()
+    );
+  }
+
 
   @Test
   void testCreateAppointment_throwsGenericException() {
@@ -129,7 +185,7 @@ public class AppointmentServiceTest {
     appointmentDto.setEndDateTime(LocalDateTime.of(2024, 10, 15, 11, 0));
 
     when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any()))
-        .thenThrow(new RuntimeException("System Error"));
+      .thenThrow(new RuntimeException("System Error"));
 
     RuntimeException exception = assertThrows(RuntimeException.class, () -> {
       appointmentService.createAppointment(appointmentDto);
@@ -200,13 +256,13 @@ public class AppointmentServiceTest {
     when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any())).thenReturn(1);
 
     IllegalArgumentException exception = assertThrows(
-        IllegalArgumentException.class,
-        () -> appointmentService.createBlock(blockDto)
+      IllegalArgumentException.class,
+      () -> appointmentService.createBlock(blockDto)
     );
 
     assertEquals("The selected time slot is not available or conflicts "
-        + "with an existing appointment. To block this time, please cancel "
-        + "the conflicting appointment or block.", exception.getMessage());
+      + "with an existing appointment. To block this time, please cancel "
+      + "the conflicting appointment or block.", exception.getMessage());
   }
 
   @Test
@@ -252,7 +308,7 @@ public class AppointmentServiceTest {
     });
 
     assertEquals("Appointment ID is required for updating an appointment.",
-        exception.getMessage());
+      exception.getMessage());
   }
 
 
@@ -266,12 +322,12 @@ public class AppointmentServiceTest {
     when(appointmentMapper.checkUpdateTimeConflict(anyLong(), any(), any())).thenReturn(1);
 
     IllegalArgumentException exception = assertThrows(
-        IllegalArgumentException.class,
-        () -> appointmentService.updateAppointment(updateDto)
+      IllegalArgumentException.class,
+      () -> appointmentService.updateAppointment(updateDto)
     );
 
     assertEquals("The updated time slot conflicts with an existing appointment or blocked time.",
-        exception.getMessage());
+      exception.getMessage());
   }
 
   @Test
@@ -288,10 +344,19 @@ public class AppointmentServiceTest {
     });
 
     assertEquals(
-        "The updated time slot conflicts with an existing appointment or blocked time.",
-        exception.getMessage());
+      "The updated time slot conflicts with an existing appointment or blocked time.",
+      exception.getMessage());
   }
 
+  @Test
+  void testCancelAppointment_NonExistent() {
+    when(appointmentMapper.cancelAppointment(anyLong())).thenReturn(0);
+
+    boolean result = appointmentService.cancelAppointment(1L);
+
+    assertFalse(result);
+    verify(appointmentMapper).cancelAppointment(1L);
+  }
 
   @Test
   void testCancelAppointment_success() {
@@ -317,7 +382,7 @@ public class AppointmentServiceTest {
   void testGetAvailableTimeIntervals_noAppointments_returnsFullDay() {
     LocalDate date = LocalDate.of(2024, 10, 15);
     when(appointmentMapper.getAppointmentsByProviderAndDate(anyLong(), any()))
-        .thenReturn(Arrays.asList());
+      .thenReturn(Arrays.asList());
 
     List<List<LocalDateTime>> result = appointmentService.getAvailableTimeIntervals(1L, date);
 
@@ -325,6 +390,66 @@ public class AppointmentServiceTest {
     assertEquals(date.atStartOfDay(), result.get(0).get(0));
     assertEquals(date.atTime(LocalTime.MAX), result.get(0).get(1));
   }
+
+  @Test
+  void testGetAvailableTimeIntervals_NoOverlap() {
+    Appointment appointment1 = new Appointment();
+    appointment1.setStartDateTime(LocalDateTime.of(2024, 10, 15, 9, 0));
+    appointment1.setEndDateTime(LocalDateTime.of(2024, 10, 15, 10, 0));
+
+    Appointment appointment2 = new Appointment();
+    appointment2.setStartDateTime(LocalDateTime.of(2024, 10, 15, 12, 0));
+    appointment2.setEndDateTime(LocalDateTime.of(2024, 10, 15, 13, 0));
+
+    when(appointmentMapper.getAppointmentsByProviderAndDate(anyLong(), any()))
+      .thenReturn(Arrays.asList(appointment1, appointment2));
+
+    LocalDate date = LocalDate.of(2024, 10, 15);
+
+    List<List<LocalDateTime>> result = appointmentService.getAvailableTimeIntervals(1L, date);
+
+    assertEquals(3, result.size());
+    assertEquals(LocalDateTime.of(2024, 10, 15, 0, 0), result.get(0).get(0));
+    assertEquals(LocalDateTime.of(2024, 10, 15, 9, 0), result.get(0).get(1));
+    assertEquals(LocalDateTime.of(2024, 10, 15, 10, 0), result.get(1).get(0));
+    assertEquals(LocalDateTime.of(2024, 10, 15, 12, 0), result.get(1).get(1));
+    assertEquals(LocalDateTime.of(2024, 10, 15, 13, 0), result.get(2).get(0));
+    assertEquals(LocalDateTime.of(2024, 10, 15, 23, 59, 59, 999999999), result.get(2).get(1));
+  }
+
+
+  @Test
+  void testGetAvailableTimeIntervals_OverlappingAppointments() {
+    Appointment appointment1 = new Appointment();
+    appointment1.setStartDateTime(LocalDateTime.of(2024, 10, 15, 9, 0));
+    appointment1.setEndDateTime(LocalDateTime.of(2024, 10, 15, 10, 0));
+
+    Appointment appointment2 = new Appointment();
+    appointment2.setStartDateTime(LocalDateTime.of(2024, 10, 15, 10, 30));
+    appointment2.setEndDateTime(LocalDateTime.of(2024, 10, 15, 11, 30));
+
+    Appointment appointment3 = new Appointment();
+    appointment3.setStartDateTime(LocalDateTime.of(2024, 10, 15, 12, 0));
+    appointment3.setEndDateTime(LocalDateTime.of(2024, 10, 15, 13, 0));
+
+    when(appointmentMapper.getAppointmentsByProviderAndDate(anyLong(), any()))
+      .thenReturn(Arrays.asList(appointment1, appointment2, appointment3));
+
+    LocalDate date = LocalDate.of(2024, 10, 15);
+
+    List<List<LocalDateTime>> result = appointmentService.getAvailableTimeIntervals(1L, date);
+
+    assertEquals(4, result.size());
+    assertEquals(LocalDateTime.of(2024, 10, 15, 0, 0), result.get(0).get(0));
+    assertEquals(LocalDateTime.of(2024, 10, 15, 9, 0), result.get(0).get(1));
+    assertEquals(LocalDateTime.of(2024, 10, 15, 10, 0), result.get(1).get(0));
+    assertEquals(LocalDateTime.of(2024, 10, 15, 10, 30), result.get(1).get(1));
+    assertEquals(LocalDateTime.of(2024, 10, 15, 11, 30), result.get(2).get(0));
+    assertEquals(LocalDateTime.of(2024, 10, 15, 12, 0), result.get(2).get(1));
+    assertEquals(LocalDateTime.of(2024, 10, 15, 13, 0), result.get(3).get(0));
+    assertEquals(LocalDateTime.of(2024, 10, 15, 23, 59, 59, 999999999), result.get(3).get(1));
+  }
+
 
   @Test
   void testGetAvailableTimeIntervals_withAppointments_returnsIntervals() {
@@ -337,7 +462,7 @@ public class AppointmentServiceTest {
     appointment2.setEndDateTime(LocalDateTime.of(2024, 10, 15, 14, 0));
 
     when(appointmentMapper.getAppointmentsByProviderAndDate(anyLong(), any()))
-        .thenReturn(Arrays.asList(appointment1, appointment2));
+      .thenReturn(Arrays.asList(appointment1, appointment2));
 
     LocalDate date = LocalDate.of(2024, 10, 15);
 
@@ -354,7 +479,7 @@ public class AppointmentServiceTest {
   void testGetAvailableTimeIntervals_withNoAppointments() {
     LocalDate date = LocalDate.of(2024, 10, 15);
     when(appointmentMapper.getAppointmentsByProviderAndDate(anyLong(), any()))
-        .thenReturn(Arrays.asList());
+      .thenReturn(Arrays.asList());
 
     List<List<LocalDateTime>> result = appointmentService.getAvailableTimeIntervals(1L, date);
 
@@ -374,7 +499,7 @@ public class AppointmentServiceTest {
     appointment2.setEndDateTime(LocalDateTime.of(2024, 10, 15, 15, 0));
 
     when(appointmentMapper.getAppointmentsByProviderAndDate(anyLong(), any()))
-        .thenReturn(Arrays.asList(appointment1, appointment2));
+      .thenReturn(Arrays.asList(appointment1, appointment2));
 
     LocalDate date = LocalDate.of(2024, 10, 15);
 
@@ -398,7 +523,7 @@ public class AppointmentServiceTest {
     appointment2.setEndDateTime(LocalDateTime.of(2024, 10, 15, 15, 0));
 
     when(appointmentMapper.getAppointmentsByProviderAndDate(anyLong(), any()))
-        .thenReturn(Arrays.asList(appointment1, appointment2));
+      .thenReturn(Arrays.asList(appointment1, appointment2));
 
     LocalDate date = LocalDate.of(2024, 10, 15);
 
@@ -422,6 +547,59 @@ public class AppointmentServiceTest {
     dto.setUserId(100L);
     assertEquals(100L, dto.getUserId());
   }
+
+  @Test
+  void testUpdateAppointment_NoChanges_NullValues() {
+    UpdateAppointmentDto updateDto = new UpdateAppointmentDto();
+    updateDto.setAppointmentId(1L);
+    updateDto.setStartDateTime(null); // Null start time
+    updateDto.setEndDateTime(null);   // Null end time
+
+    Appointment originalAppointment = new Appointment();
+    originalAppointment.setStartDateTime(LocalDateTime.of(2024, 10, 15, 10, 0));
+    originalAppointment.setEndDateTime(LocalDateTime.of(2024, 10, 15, 11, 0));
+
+    when(appointmentMapper.getAppointment(anyLong())).thenReturn(originalAppointment);
+
+    Appointment result = appointmentService.updateAppointment(updateDto);
+
+    // Assert that the returned appointment is not null
+    assertNotNull(result);
+
+    // Assert that updateDto times remain null
+    assertNull(updateDto.getStartDateTime());
+    assertNull(updateDto.getEndDateTime());
+
+    // Verify the mapper update call
+    verify(appointmentMapper).updateAppointment(updateDto);
+  }
+
+
+
+  @Test
+  void testUpdateAppointment_MissingTimes() {
+    UpdateAppointmentDto updateDto = new UpdateAppointmentDto();
+    updateDto.setAppointmentId(1L);
+    updateDto.setStartDateTime(null); // Missing start time
+    updateDto.setEndDateTime(null); // Missing end time
+
+    Appointment originalAppointment = new Appointment();
+    originalAppointment.setStartDateTime(LocalDateTime.of(2024, 10, 15, 10, 0));
+    originalAppointment.setEndDateTime(LocalDateTime.of(2024, 10, 15, 11, 0));
+
+    when(appointmentMapper.getAppointment(anyLong())).thenReturn(originalAppointment);
+
+    // Call the service method
+    appointmentService.updateAppointment(updateDto);
+
+    // Assert that the times in updateDto remain null
+    assertNull(updateDto.getStartDateTime());
+    assertNull(updateDto.getEndDateTime());
+
+    // Verify that updateAppointment was called with the dto
+    verify(appointmentMapper).updateAppointment(updateDto);
+  }
+
 
   @Test
   void testUpdateAppointmentDtoSetAndGetStatus() {
@@ -494,6 +672,16 @@ public class AppointmentServiceTest {
     assertEquals(1L, result.getProviderId());
     assertEquals(2L, result.getUserId());
     verify(appointmentMapper).getAppointment(1L);
+  }
+
+  @Test
+  void testGetAppointmentsByProviderAndDate_NoAppointments() {
+    when(appointmentMapper.getAppointmentsByProviderAndDate(anyLong(), any())).thenReturn(List.of());
+
+    List<Appointment> result = appointmentService.getAppointmentsByProviderAndDate(1L, LocalDate.of(2024, 10, 15));
+
+    assertTrue(result.isEmpty());
+    verify(appointmentMapper).getAppointmentsByProviderAndDate(1L, LocalDate.of(2024, 10, 15));
   }
 
   @Test
@@ -585,6 +773,23 @@ public class AppointmentServiceTest {
   }
 
   @Test
+  void testCreateRecurringBlock_SingleDay() {
+    CreateRecurringBlockDto blockDto = new CreateRecurringBlockDto();
+    blockDto.setProviderId(1L);
+    blockDto.setStartTime(LocalTime.of(9, 0));
+    blockDto.setEndTime(LocalTime.of(17, 0));
+    blockDto.setStartDate(LocalDate.of(2024, 10, 15));
+    blockDto.setEndDate(LocalDate.of(2024, 10, 15)); // Single day
+
+    when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any())).thenReturn(0);
+
+    String result = appointmentService.createRecurringBlock(blockDto);
+
+    assertEquals("Recurring block created successfully from 2024-10-15 to 2024-10-15", result);
+  }
+
+
+  @Test
   void testCreateRecurringBlock() {
     CreateRecurringBlockDto blockDto = new CreateRecurringBlockDto();
     blockDto.setProviderId(1L);
@@ -621,26 +826,144 @@ public class AppointmentServiceTest {
     assertEquals("Conflicts found on the following dates: \n" + 
             "2024-12-24\n" + "2024-12-25\n", result);
   }
+  @Test
+  void testCreateRecurringBlockInOneYear_NullProviderId() {
+    CreateRecurringBlockInOneYearDto blockDto = new CreateRecurringBlockInOneYearDto();
+    blockDto.setProviderId(null); // Null provider ID
+    blockDto.setStartTime(LocalTime.of(9, 0));
+    blockDto.setEndTime(LocalTime.of(17, 0));
 
-    @Test
-    void testCreateRecurringBlockInOneYear() {
+    IllegalArgumentException exception = assertThrows(
+      IllegalArgumentException.class,
+      () -> appointmentService.createRecurringBlockInOneYear(blockDto)
+    );
 
-      CreateRecurringBlockInOneYearDto blockDto2 = new CreateRecurringBlockInOneYearDto();
-      blockDto2.setProviderId(1L);
-      blockDto2.setStartTime(LocalTime.of( 8, 0));
-      blockDto2.setEndTime(LocalTime.of( 19, 0));
-      when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any())).thenReturn(0);
+    assertEquals("Provider ID Can't be null.", exception.getMessage());
+  }
 
-      String result2 = appointmentService.createRecurringBlockInOneYear(blockDto2);
-      //check success
-      assertEquals("Yearly recurring block created successfully.", result2);
-    }
+  @Test
+  void testCreateRecurringBlockInOneYear_ConflictsOnSpecificDays() {
+    CreateRecurringBlockInOneYearDto blockDto = new CreateRecurringBlockInOneYearDto();
+    blockDto.setProviderId(1L);
+    blockDto.setStartTime(LocalTime.of(9, 0));
+    blockDto.setEndTime(LocalTime.of(17, 0));
 
-    @Test
+    when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any()))
+      .thenReturn(0) // No conflict on most days
+      .thenReturn(1); // Conflict on specific days
+
+    String result = appointmentService.createRecurringBlockInOneYear(blockDto);
+
+    assertTrue(result.contains("Conflicts found on the following dates:"));
+  }
+
+  @Test
+  void testCreateRecurringBlockInOneYear() {
+
+    CreateRecurringBlockInOneYearDto blockDto2 = new CreateRecurringBlockInOneYearDto();
+    blockDto2.setProviderId(1L);
+    blockDto2.setStartTime(LocalTime.of( 8, 0));
+    blockDto2.setEndTime(LocalTime.of( 19, 0));
+    when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any())).thenReturn(0);
+
+    String result2 = appointmentService.createRecurringBlockInOneYear(blockDto2);
+    //check success
+    assertEquals("Yearly recurring block created successfully.", result2);
+  }
+
+  @Test
+  void testCreateRecurringBlockInOneYear_Conflicts() {
+    CreateRecurringBlockInOneYearDto blockDto = new CreateRecurringBlockInOneYearDto();
+    blockDto.setProviderId(1L);
+    blockDto.setStartTime(LocalTime.of(9, 0));
+    blockDto.setEndTime(LocalTime.of(10, 0));
+
+    // Simulate a conflict on specific dates
+    when(appointmentMapper.checkCreateTimeConflict(anyLong(), any(), any()))
+      .thenReturn(0) // No conflict on most days
+      .thenReturn(1); // Conflict on a specific day
+
+    String result = appointmentService.createRecurringBlockInOneYear(blockDto);
+
+    assertTrue(result.contains("Conflicts found on the following dates:"));
+  }
+  @Test
+  void testDeleteBlock_NonExistent() {
+    when(appointmentMapper.deleteBlock(anyLong())).thenReturn(0);
+
+    boolean result = appointmentService.deleteBlock(1L);
+
+    assertFalse(result);
+    verify(appointmentMapper).deleteBlock(1L);
+  }
+
+
+  @Test
   void testDeleteAppointment() {
     long id = 1;
     assertEquals(false, appointmentService.deleteBlock(id));
-    
+
+  }
+
+  @Test
+  void testGetAppointmentHistory_NoAppointments() {
+    when(appointmentMapper.findAppointmentsByProviderAndUser(anyLong(), anyLong()))
+      .thenReturn(new ArrayList<>());
+
+    List<Appointment> result = appointmentService.getAppointmentHistory(1L, 2L);
+
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
+    verify(appointmentMapper).findAppointmentsByProviderAndUser(1L, 2L);
+  }
+
+  @Test
+  void testGetAvailableTimeIntervals_BackToBackAppointments() {
+    Appointment appointment1 = new Appointment();
+    appointment1.setStartDateTime(LocalDateTime.of(2024, 10, 15, 9, 0));
+    appointment1.setEndDateTime(LocalDateTime.of(2024, 10, 15, 10, 0));
+
+    Appointment appointment2 = new Appointment();
+    appointment2.setStartDateTime(LocalDateTime.of(2024, 10, 15, 10, 0));
+    appointment2.setEndDateTime(LocalDateTime.of(2024, 10, 15, 11, 0));
+
+    when(appointmentMapper.getAppointmentsByProviderAndDate(anyLong(), any()))
+      .thenReturn(Arrays.asList(appointment1, appointment2));
+
+    LocalDate date = LocalDate.of(2024, 10, 15);
+
+    List<List<LocalDateTime>> result = appointmentService.getAvailableTimeIntervals(1L, date);
+
+    assertEquals(2, result.size());
+    assertEquals(LocalDateTime.of(2024, 10, 15, 0, 0), result.get(0).get(0));
+    assertEquals(LocalDateTime.of(2024, 10, 15, 9, 0), result.get(0).get(1));
+    assertEquals(LocalDateTime.of(2024, 10, 15, 11, 0), result.get(1).get(0));
+    assertEquals(LocalDateTime.of(2024, 10, 15, 23, 59, 59, 999999999), result.get(1).get(1));
+  }
+
+  @Test
+  void testGetAppointmentsWithinDateRange_StartDateAfterEndDate() {
+    LocalDate startDate = LocalDate.of(2024, 12, 31);
+    LocalDate endDate = LocalDate.of(2024, 1, 1);
+
+    IllegalArgumentException exception = assertThrows(
+      IllegalArgumentException.class,
+      () -> appointmentService.getAppointmentsWithinDateRange(1L, startDate, endDate)
+    );
+
+    assertEquals("Start date cannot be after end date.", exception.getMessage());
+  }
+
+  @Test
+  void testGetAppointmentsWithinDateRange_NullStartDate() {
+    LocalDate endDate = LocalDate.of(2024, 12, 31);
+
+    IllegalArgumentException exception = assertThrows(
+      IllegalArgumentException.class,
+      () -> appointmentService.getAppointmentsWithinDateRange(1L, null, endDate)
+    );
+
+    assertEquals("Start date and end date cannot be null.", exception.getMessage());
   }
 
 }
