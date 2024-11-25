@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -73,6 +74,30 @@ public class AppointmentControllerTest {
             .content(appointmentJson))
         .andExpect(status().isCreated());
   }
+  @Test
+  public void testCreateAppointmentUnexpectedException() throws Exception {
+    String appointmentJson = """
+            {
+                "providerId": 1,
+                "userId": 2,
+                "startDateTime": "2024-01-01T09:00:00",
+                "endDateTime": "2024-01-01T10:00:00",
+                "status": "SCHEDULED",
+                "serviceType": "Medical",
+                "comments": "Test comments"
+            }
+        """;
+
+    when(appointmentService.createAppointment(any()))
+      .thenThrow(new RuntimeException("Unexpected error"));
+
+    mockMvc.perform(post("/appointments/createAppointment")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(appointmentJson))
+      .andExpect(status().isInternalServerError())
+      .andExpect(content().string("An unexpected error occurred: Unexpected error"));
+  }
+
 
   @Test
   public void testCreateBlock() throws Exception {
@@ -92,6 +117,48 @@ public class AppointmentControllerTest {
         .andExpect(status().isCreated())
         .andExpect(content().string("Block created"));
   }
+  @Test
+  public void testCreateBlockWithMissingFields() throws Exception {
+    String blockJson = """
+            {
+                "startDateTime": "2024-01-01T09:00:00",
+                "endDateTime": "2024-01-01T10:00:00"
+            }
+        """; // Missing providerId
+
+    when(appointmentService.createBlock(any()))
+      .thenThrow(new IllegalArgumentException("Provider ID is required"));
+
+    mockMvc.perform(post("/appointments/createBlock")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(blockJson))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().string("Provider ID is required"));
+  }
+  @Test
+  public void testCreateAppointmentInvalidDates() throws Exception {
+    String appointmentJson = """
+            {
+                "providerId": 1,
+                "userId": 2,
+                "startDateTime": "2024-01-01T11:00:00",
+                "endDateTime": "2024-01-01T10:00:00",
+                "status": "SCHEDULED",
+                "serviceType": "Medical",
+                "comments": "Invalid dates"
+            }
+        """; // startDateTime is after endDateTime
+
+    when(appointmentService.createAppointment(any()))
+      .thenThrow(new IllegalArgumentException("Start time cannot be after end time"));
+
+    mockMvc.perform(post("/appointments/createAppointment")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(appointmentJson))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().string("Start time cannot be after end time"));
+  }
+
 
   @Test
   public void testCreateRecurringBlockInOneYear() throws Exception {
@@ -132,6 +199,30 @@ public class AppointmentControllerTest {
             .content(updateAppointmentJson))
         .andExpect(status().isOk());
   }
+  @Test
+  public void testUpdateAppointmentNullId() throws Exception {
+    String updateAppointmentJson = """
+            {
+                "appointmentId": null,
+                "userId": 2,
+                "startDateTime": "2024-01-01T09:00:00",
+                "endDateTime": "2024-01-01T10:00:00",
+                "status": "RESCHEDULED",
+                "serviceType": "Medical",
+                "comments": "Updated comments"
+            }
+        """; // Missing appointmentId
+
+    when(appointmentService.updateAppointment(any()))
+      .thenThrow(new IllegalArgumentException("Appointment ID is required"));
+
+    mockMvc.perform(put("/appointments/update")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(updateAppointmentJson))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().string("Appointment ID is required"));
+  }
+
 
   @Test
   public void testCancelAppointment() throws Exception {
@@ -141,6 +232,15 @@ public class AppointmentControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().string("Appointment cancelled successfully."));
   }
+  @Test
+  public void testCancelNonExistentAppointment() throws Exception {
+    when(appointmentService.cancelAppointment(anyLong())).thenReturn(false);
+
+    mockMvc.perform(put("/appointments/cancel/999"))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().string("Appointment not found or already cancelled."));
+  }
+
 
   @Test
   public void testGetAppointmentsByProviderId() throws Exception {
@@ -159,6 +259,16 @@ public class AppointmentControllerTest {
     mockMvc.perform(get("/appointments/provider/1/available/date/2024-01-01"))
         .andExpect(status().isOk());
   }
+  @Test
+  public void testGetAvailableTimeIntervalsEmpty() throws Exception {
+    when(appointmentService.getAvailableTimeIntervals(anyLong(), any()))
+      .thenReturn(new ArrayList<>());
+
+    mockMvc.perform(get("/appointments/provider/1/available/date/2024-01-01"))
+      .andExpect(status().isOk())
+      .andExpect(content().json("[]")); // Empty JSON array
+  }
+
 
   @Test
   public void testCreateAppointmentWithInvalidInput() throws Exception {
@@ -221,6 +331,24 @@ public class AppointmentControllerTest {
         .param("user_id", "2"))
       .andExpect(status().isOk());
   }
+
+  @Test
+  public void testGetAppointmentNotFound() throws Exception {
+    when(appointmentService.getAppointment(anyLong())).thenReturn(null);
+
+    mockMvc.perform(get("/appointments/999"))
+      .andExpect(status().isNotFound());
+  }
+  @Test
+  public void testGetAppointmentsByProviderAndDateNoResults() throws Exception {
+    when(appointmentService.getAppointmentsByProviderAndDate(anyLong(), any()))
+      .thenReturn(new ArrayList<>());
+
+    mockMvc.perform(get("/appointments/provider/1/date/2024-01-01"))
+      .andExpect(status().isOk())
+      .andExpect(content().json("[]")); // Empty JSON array
+  }
+
 
   @Test
   public void testCreateAppointmentWithValidInput() throws Exception {
@@ -292,7 +420,6 @@ public class AppointmentControllerTest {
       .andExpect(status().isOk());
   }
 
-
   @Test
   public void testCreateRecurringBlockSuccess() throws Exception {
     String blockJson = """
@@ -315,6 +442,28 @@ public class AppointmentControllerTest {
   }
 
   @Test
+  public void testCreateRecurringBlockWithInvalidInput() throws Exception {
+    String blockJson = """
+            {
+                "providerId": null,
+                "startDate": "2024-01-01",
+                "endDate": "2024-01-10",
+                "blockType": "Daily"
+            }
+        """;
+
+    when(appointmentService.createRecurringBlock(any()))
+      .thenThrow(new IllegalArgumentException("Provider ID cannot be null"));
+
+    mockMvc.perform(post("/appointments/createRecurringBlock")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(blockJson))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().string("Provider ID cannot be null"));
+  }
+
+
+  @Test
   public void testDeleteNotExistBlock() throws Exception {
     when(appointmentService.deleteBlock(anyLong())).thenReturn(true);
 
@@ -334,5 +483,80 @@ public class AppointmentControllerTest {
     appointment.setComments("Test appointment");
     return appointment;
   }
+  @Test
+  public void testGetAppointmentHistoryWithNonEmptyHistory() throws Exception {
+    when(appointmentService.getAppointmentHistory(anyLong(), anyLong()))
+      .thenReturn(List.of(createMockAppointment()));
+
+    mockMvc.perform(get("/appointments/history")
+        .param("provider_id", "1")
+        .param("user_id", "2"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$[0]['Appointment ID']").value(1))
+      .andExpect(jsonPath("$[0]['Status']").value("Scheduled"));
+  }
+  @Test
+  public void testGetAppointmentsByProviderIdEmptyList() throws Exception {
+    when(appointmentService.getAppointmentsByProviderId(anyLong()))
+      .thenReturn(new ArrayList<>());
+
+    mockMvc.perform(get("/appointments/provider/1"))
+      .andExpect(status().isOk())
+      .andExpect(content().json("[]")); // Ensure an empty JSON array is returned
+  }
+  @Test
+  public void testGetAppointmentsWithinDateRangeNullStartDate() throws Exception {
+    mockMvc.perform(get("/appointments/provider/1/appointments")
+        .param("startDate", "")
+        .param("endDate", "2024-01-31"))
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void testGetAppointmentsWithinDateRangeNullEndDate() throws Exception {
+    mockMvc.perform(get("/appointments/provider/1/appointments")
+        .param("startDate", "2024-01-01")
+        .param("endDate", ""))
+      .andExpect(status().isBadRequest());
+  }
+  @Test
+  public void testGetAppointmentsWithinDateRangeValid() throws Exception {
+    Appointment mockAppointment = createMockAppointment();
+    when(appointmentService.getAppointmentsWithinDateRange(anyLong(), any(), any()))
+      .thenReturn(List.of(mockAppointment));
+
+    mockMvc.perform(get("/appointments/provider/1/appointments")
+        .param("startDate", "2024-01-01")
+        .param("endDate", "2024-01-31"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$[0].appointmentId").value(1));
+  }
+  @Test
+  public void testCreateBlockMissingProviderId() throws Exception {
+    String blockJson = """
+            {
+                "startDateTime": "2024-01-01T09:00:00",
+                "endDateTime": "2024-01-01T10:00:00"
+            }
+        """;
+
+    when(appointmentService.createBlock(any()))
+      .thenThrow(new IllegalArgumentException("Provider ID is required"));
+
+    mockMvc.perform(post("/appointments/createBlock")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(blockJson))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().string("Provider ID is required"));
+  }
+  @Test
+  public void testDeleteNonExistentBlock() throws Exception {
+    when(appointmentService.deleteBlock(anyLong())).thenReturn(false);
+
+    mockMvc.perform(delete("/appointments/deleteBlock/999"))
+      .andExpect(status().isBadRequest())
+      .andExpect(content().string("Block not found or already deleted."));
+  }
+
 
 }
