@@ -40,12 +40,17 @@ jobs:
       working-directory: appointment-management
       run: mvn test
     
-    # Run PMD Analysis
+    # Run PMD 
     - name: Run PMD
       working-directory: appointment-management
       run: mvn pmd:check
 
-      # Generate JaCoCo Coverage Report
+    # Generate JaCoCo Report
     - name: Generate JaCoCo Report
       working-directory: appointment-management
       run: mvn jacoco:report
+    
+    # StyleCheck
+    - name: check style
+      working-directory: appointment-management
+      run: mvn checkstyle:check
