@@ -219,7 +219,8 @@ To generate the report, run the following command:
 ```bash
 mvn clean test jacoco:report
 ```
-<img width="994" alt="image" src="https://github.com/user-attachments/assets/9fa4a805-2deb-40af-9022-f5283a68462a">
+<img width="1071" alt="image" src="https://github.com/user-attachments/assets/344e94a6-11b2-4236-a85f-b90b545237ee">
+
 
 ## Style Checking Report
 
@@ -234,15 +235,17 @@ We used the tool **Checkstyle** to check the style of our code and ensure it adh
 ### Running Style Checks:
 To run the Checkstyle checks locally and generate a report, use the following Maven command:
 ```bash
-mvn checkstyle:checkstyle
+mvn checkstyle:check
 ```
-![Style Check Report](reports/stylecheck.png)
+![image](https://github.com/user-attachments/assets/6ab2acb5-ba82-4468-8605-75720d267617)
+
 
 ## Static Analysis
 
 We used the tool **PMD** to as the static checker to find potential bugs and bad practices. We used the default ruleset from PMD.
 
-![PMD](reports/pmd.png)
+![image](https://github.com/user-attachments/assets/a34b267f-e5cd-4842-9d5c-889bccea6726)
+
 
 ## Project Management
 
