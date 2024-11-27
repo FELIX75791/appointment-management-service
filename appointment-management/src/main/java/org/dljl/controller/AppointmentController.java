@@ -144,7 +144,7 @@ public class AppointmentController {
   public ResponseEntity<String> deleteBlock(@PathVariable Long id) {
     boolean isCancelled = appointmentService.deleteBlock(id);
     if (isCancelled) {
-      return ResponseEntity.ok("Block cancelled successfully.");
+      return ResponseEntity.ok("Block deleted successfully.");
     } else {
       return ResponseEntity.badRequest().body("Block not found or already deleted.");
     }

@@ -6,6 +6,8 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import org.dljl.dto.CreateAppointmentDto;
 import org.dljl.dto.CreateBlockDto;
 import org.dljl.dto.CreateRecurringBlockInOneYearDto;
@@ -129,10 +131,18 @@ public class AppointmentServiceImpl implements AppointmentService {
 
   @Override
   public Appointment updateAppointment(UpdateAppointmentDto appointmentDto) {
-
     if (appointmentDto.getAppointmentId() == null) {
       throw new IllegalArgumentException("Appointment ID is required for updating an appointment.");
     }
+
+    if(appointmentMapper.getAppointment(appointmentDto.getAppointmentId()) == null) {
+      throw new IllegalArgumentException("Correct Appointment ID is required for updating an appointment.");
+    }
+
+    if(Objects.equals(appointmentMapper.getAppointment(appointmentDto.getAppointmentId()).getStatus(), "blocked")) {
+      throw new IllegalArgumentException("Cannot update a block, an appointment is required.");
+    }
+
     if (appointmentDto.getStartDateTime() != null || appointmentDto.getEndDateTime() != null) {
       Appointment originalAppointment = getAppointment(appointmentDto.getAppointmentId());
       if (appointmentDto.getStartDateTime() == null) {
