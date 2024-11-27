@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.dljl.dto.CreateAppointmentDto;
 import org.dljl.dto.CreateBlockDto;
-import org.dljl.dto.CreateRecurringBlockInOneYearDto;
 import org.dljl.dto.CreateRecurringBlockDto;
+import org.dljl.dto.CreateRecurringBlockInOneYearDto;
 import org.dljl.dto.UpdateAppointmentDto;
 import org.dljl.entity.Appointment;
 import org.dljl.mapper.AppointmentMapper;
@@ -246,7 +246,8 @@ public class AppointmentServiceImpl implements AppointmentService {
   }
 
   @Override
-  public List<Appointment> getAppointmentsWithinDateRange(Long providerId, LocalDate startDate, LocalDate endDate) {
+  public List<Appointment> getAppointmentsWithinDateRange(Long providerId, 
+      LocalDate startDate, LocalDate endDate) {
     if (providerId == null) {
       throw new IllegalArgumentException("Provider ID cannot be null.");
     }
@@ -298,7 +299,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     if (hasConflict) {
       return "Conflicts found on the following dates: \n" + conflictDates.toString();
     } else {
-      return "Recurring block created successfully from " + startDate.toString() + " to " + endDate.toString();
+      return "Recurring block created successfully from " 
+          + startDate.toString() + " to " + endDate.toString();
     }
   }
 
