@@ -51,7 +51,7 @@ public class AppointmentController {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-          .body("An unexpected error occurred: " + e.getMessage());
+              .body("An unexpected error occurred: " + e.getMessage());
     }
   }
 
@@ -71,7 +71,7 @@ public class AppointmentController {
       return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
       return new ResponseEntity<>(
-          "An unexpected error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+              "An unexpected error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -84,7 +84,7 @@ public class AppointmentController {
   // Create a recurring block for one year
   @PostMapping("/createRecurringBlockInOneYear")
   public ResponseEntity<String> createRecurringBlockInOneYear(
-      @RequestBody CreateRecurringBlockInOneYearDto blockDto) {
+          @RequestBody CreateRecurringBlockInOneYearDto blockDto) {
     try {
       String result = appointmentService.createRecurringBlockInOneYear(blockDto);
       return new ResponseEntity<>(result, HttpStatus.CREATED);
@@ -92,7 +92,7 @@ public class AppointmentController {
       return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
       return new ResponseEntity<>(
-          "An unexpected error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+              "An unexpected error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -144,7 +144,7 @@ public class AppointmentController {
   public ResponseEntity<String> deleteBlock(@PathVariable Long id) {
     boolean isCancelled = appointmentService.deleteBlock(id);
     if (isCancelled) {
-      return ResponseEntity.ok("Block cancelled successfully.");
+      return ResponseEntity.ok("Block deleted successfully.");
     } else {
       return ResponseEntity.badRequest().body("Block not found or already deleted.");
     }
@@ -176,7 +176,7 @@ public class AppointmentController {
   // Get appointments by provider ID
   @GetMapping("/provider/{providerId}")
   public ResponseEntity<List<Appointment>> getAppointmentsByProviderId(
-      @PathVariable Long providerId) {
+          @PathVariable Long providerId) {
     List<Appointment> appointments = appointmentService.getAppointmentsByProviderId(providerId);
     return ResponseEntity.ok(appointments);
   }
@@ -191,11 +191,11 @@ public class AppointmentController {
   // Get appointments by provider ID and Date
   @GetMapping("/provider/{providerId}/date/{appointmentDate}")
   public ResponseEntity<List<Appointment>> getAppointmentsByProviderAndDate(
-      @PathVariable("providerId") Long providerId,
-      @PathVariable("appointmentDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          @PathVariable("providerId") Long providerId,
+          @PathVariable("appointmentDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
           LocalDate appointmentDate) {
     List<Appointment> appointments =
-        appointmentService.getAppointmentsByProviderAndDate(providerId, appointmentDate);
+            appointmentService.getAppointmentsByProviderAndDate(providerId, appointmentDate);
     return ResponseEntity.ok(appointments);
   }
 
@@ -209,11 +209,11 @@ public class AppointmentController {
   // Get all available time intervals in a day by provider ID and Date
   @GetMapping("/provider/{providerId}/available/date/{appointmentDate}")
   public ResponseEntity<List<List<LocalDateTime>>> getAvailableTimeIntervals(
-      @PathVariable("providerId") Long providerId,
-      @PathVariable("appointmentDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          @PathVariable("providerId") Long providerId,
+          @PathVariable("appointmentDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
           LocalDate appointmentDate) {
     List<List<LocalDateTime>> availableTimeIntervals =
-        appointmentService.getAvailableTimeIntervals(providerId, appointmentDate);
+            appointmentService.getAvailableTimeIntervals(providerId, appointmentDate);
     return ResponseEntity.ok(availableTimeIntervals);
   }
 
@@ -226,10 +226,10 @@ public class AppointmentController {
    */
   @GetMapping("/history")
   public ResponseEntity<List<Map<String, Object>>> getAppointmentHistory(
-      @RequestParam("provider_id") Long providerId, @RequestParam("user_id") Long userId) {
+          @RequestParam("provider_id") Long providerId, @RequestParam("user_id") Long userId) {
 
     List<Appointment> appointmentHistory =
-        appointmentService.getAppointmentHistory(providerId, userId);
+            appointmentService.getAppointmentHistory(providerId, userId);
 
     if (appointmentHistory.isEmpty()) {
       // Add a custom message to the response list
@@ -242,19 +242,25 @@ public class AppointmentController {
 
     // Customize the output
     List<Map<String, Object>> response =
-        appointmentHistory.stream()
-            .map(
-                appointment -> {
-                  Map<String, Object> appointmentDetails = new HashMap<>();
-                  appointmentDetails.put("Appointment ID", appointment.getAppointmentId());
-                  appointmentDetails.put("Start Date and Time", appointment.getStartDateTime());
-                  appointmentDetails.put("End Date and Time", appointment.getEndDateTime());
-                  appointmentDetails.put("Status", appointment.getStatus());
-                  appointmentDetails.put("Service Type", appointment.getServiceType());
-                  appointmentDetails.put("Comments", appointment.getComments());
-                  return appointmentDetails;
-                })
-            .collect(Collectors.toList());
+            appointmentHistory.stream()
+                    .map(
+                            appointment -> {
+                              Map<String, Object> appointmentDetails = new HashMap<>();
+                              appointmentDetails.put("Appointment ID",
+                                      appointment.getAppointmentId());
+                              appointmentDetails.put("Start Date and Time",
+                                      appointment.getStartDateTime());
+                              appointmentDetails.put("End Date and Time",
+                                      appointment.getEndDateTime());
+                              appointmentDetails.put("Status",
+                                      appointment.getStatus());
+                              appointmentDetails.put("Service Type",
+                                      appointment.getServiceType());
+                              appointmentDetails.put("Comments",
+                                      appointment.getComments());
+                              return appointmentDetails;
+                            })
+                    .collect(Collectors.toList());
 
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
@@ -269,12 +275,12 @@ public class AppointmentController {
    */
   @GetMapping("/provider/{providerId}/appointments")
   public ResponseEntity<List<Appointment>> getAppointmentsWithinDateRange(
-      @PathVariable Long providerId,
-      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+          @PathVariable Long providerId,
+          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+          @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
     try {
       List<Appointment> appointments =
-          appointmentService.getAppointmentsWithinDateRange(providerId, startDate, endDate);
+              appointmentService.getAppointmentsWithinDateRange(providerId, startDate, endDate);
       return ResponseEntity.ok(appointments);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.badRequest().body(null);
@@ -292,7 +298,7 @@ public class AppointmentController {
   // Create a recurring block from start date to end date
   @PostMapping("/createRecurringBlock")
   public ResponseEntity<String> createRecurringBlock(
-      @RequestBody CreateRecurringBlockDto blockDto) {
+          @RequestBody CreateRecurringBlockDto blockDto) {
     try {
       String result = appointmentService.createRecurringBlock(blockDto);
       return new ResponseEntity<>(result, HttpStatus.CREATED);
@@ -300,7 +306,7 @@ public class AppointmentController {
       return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     } catch (Exception e) {
       return new ResponseEntity<>(
-          "An unexpected error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+              "An unexpected error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

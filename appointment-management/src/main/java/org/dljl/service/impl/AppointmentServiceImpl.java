@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.dljl.dto.CreateAppointmentDto;
 import org.dljl.dto.CreateBlockDto;
 import org.dljl.dto.CreateRecurringBlockDto;
@@ -27,14 +28,14 @@ public class AppointmentServiceImpl implements AppointmentService {
   public Appointment createAppointment(CreateAppointmentDto appointmentDto) {
 
     int conflictCount =
-        appointmentMapper.checkCreateTimeConflict(
-            appointmentDto.getProviderId(),
-            appointmentDto.getStartDateTime().truncatedTo(ChronoUnit.SECONDS),
-            appointmentDto.getEndDateTime().truncatedTo(ChronoUnit.SECONDS));
+            appointmentMapper.checkCreateTimeConflict(
+                    appointmentDto.getProviderId(),
+                    appointmentDto.getStartDateTime().truncatedTo(ChronoUnit.SECONDS),
+                    appointmentDto.getEndDateTime().truncatedTo(ChronoUnit.SECONDS));
 
     if (conflictCount != 0) {
       throw new IllegalArgumentException(
-          "The selected time slot is not available or conflicts with an existing appointment.");
+              "The selected time slot is not available or conflicts with an existing appointment.");
     }
 
     Appointment appointment = new Appointment();
@@ -70,15 +71,15 @@ public class AppointmentServiceImpl implements AppointmentService {
     appointment.setComments("blocked");
 
     int conflictCount =
-        appointmentMapper.checkCreateTimeConflict(
-            providerId,
-            startDateTime.truncatedTo(ChronoUnit.SECONDS),
-            endDateTime.truncatedTo(ChronoUnit.SECONDS));
+            appointmentMapper.checkCreateTimeConflict(
+                    providerId,
+                    startDateTime.truncatedTo(ChronoUnit.SECONDS),
+                    endDateTime.truncatedTo(ChronoUnit.SECONDS));
 
     if (conflictCount != 0) {
       throw new IllegalArgumentException(
-          "The selected time slot is not available or conflicts with an existing appointment. "
-              + "To block this time, please cancel the conflicting appointment or block.");
+              "The selected time slot is not available or conflicts with an existing appointment. "
+                      + "To block this time, please cancel the conflicting appointment or block.");
     }
     appointmentMapper.createAppointment(appointment);
 
@@ -129,10 +130,21 @@ public class AppointmentServiceImpl implements AppointmentService {
 
   @Override
   public Appointment updateAppointment(UpdateAppointmentDto appointmentDto) {
-
     if (appointmentDto.getAppointmentId() == null) {
       throw new IllegalArgumentException("Appointment ID is required for updating an appointment.");
     }
+
+    if (appointmentMapper.getAppointment(appointmentDto.getAppointmentId()) == null) {
+      throw new IllegalArgumentException(
+              "Correct Appointment ID is required for updating an appointment.");
+    }
+
+    if (Objects.equals(
+            appointmentMapper.getAppointment(appointmentDto.getAppointmentId()).getStatus(),
+            "blocked")) {
+      throw new IllegalArgumentException("Cannot update a block, an appointment is required.");
+    }
+
     if (appointmentDto.getStartDateTime() != null || appointmentDto.getEndDateTime() != null) {
       Appointment originalAppointment = getAppointment(appointmentDto.getAppointmentId());
       if (appointmentDto.getStartDateTime() == null) {
@@ -143,14 +155,14 @@ public class AppointmentServiceImpl implements AppointmentService {
       }
 
       int conflictCount =
-          appointmentMapper.checkUpdateTimeConflict(
-              appointmentDto.getAppointmentId(),
-              appointmentDto.getStartDateTime().truncatedTo(ChronoUnit.SECONDS),
-              appointmentDto.getEndDateTime().truncatedTo(ChronoUnit.SECONDS));
+              appointmentMapper.checkUpdateTimeConflict(
+                      appointmentDto.getAppointmentId(),
+                      appointmentDto.getStartDateTime().truncatedTo(ChronoUnit.SECONDS),
+                      appointmentDto.getEndDateTime().truncatedTo(ChronoUnit.SECONDS));
 
       if (conflictCount != 0) {
         throw new IllegalArgumentException(
-            "The updated time slot conflicts with an existing appointment or blocked time.");
+                "The updated time slot conflicts with an existing appointment or blocked time.");
       }
     }
 
@@ -171,7 +183,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
   @Override
   public List<Appointment> getAppointmentsByProviderAndDate(
-      Long providerId, LocalDate appointmentDate) {
+          Long providerId, LocalDate appointmentDate) {
     return appointmentMapper.getAppointmentsByProviderAndDate(providerId, appointmentDate);
   }
 
@@ -197,7 +209,7 @@ public class AppointmentServiceImpl implements AppointmentService {
   public List<List<LocalDateTime>> getAvailableTimeIntervals(Long providerId, LocalDate date) {
 
     List<Appointment> appointments =
-        appointmentMapper.getAppointmentsByProviderAndDate(providerId, date);
+            appointmentMapper.getAppointmentsByProviderAndDate(providerId, date);
 
     LocalDateTime dayStart = date.atStartOfDay();
     LocalDateTime dayEnd = date.atTime(LocalTime.MAX);
@@ -246,8 +258,8 @@ public class AppointmentServiceImpl implements AppointmentService {
   }
 
   @Override
-  public List<Appointment> getAppointmentsWithinDateRange(Long providerId, 
-      LocalDate startDate, LocalDate endDate) {
+  public List<Appointment> getAppointmentsWithinDateRange(
+          Long providerId, LocalDate startDate, LocalDate endDate) {
     if (providerId == null) {
       throw new IllegalArgumentException("Provider ID cannot be null.");
     }
@@ -299,8 +311,8 @@ public class AppointmentServiceImpl implements AppointmentService {
     if (hasConflict) {
       return "Conflicts found on the following dates: \n" + conflictDates.toString();
     } else {
-      return "Recurring block created successfully from " 
-          + startDate.toString() + " to " + endDate.toString();
+      return "Recurring block created successfully from "
+              + startDate.toString() + " to " + endDate.toString();
     }
   }
 
