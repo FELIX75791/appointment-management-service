@@ -1,0 +1,12 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+appointment-management,org.dljl.service.impl,AppointmentServiceImpl,11,545,7,45,2,147,7,34,0,15
+appointment-management,org.dljl,AppointmentManagementService,5,3,0,0,2,1,1,1,1,1
+appointment-management,org.dljl.entity,Appointment,0,59,0,0,0,10,0,17,0,17
+appointment-management,org.dljl.dto,CreateRecurringBlockDto,0,38,0,0,0,7,0,11,0,11
+appointment-management,org.dljl.dto,CreateRecurringBlockInOneYearDto,0,24,0,0,0,5,0,7,0,7
+appointment-management,org.dljl.dto,CreateBlockDto,0,24,0,0,0,5,0,7,0,7
+appointment-management,org.dljl.dto,CreateAppointmentDto,0,52,0,0,0,9,0,15,0,15
+appointment-management,org.dljl.dto,UpdateAppointmentDto,0,52,0,0,0,9,0,15,0,15
+appointment-management,org.dljl.controller,ClientController,0,36,0,0,0,8,0,2,0,2
+appointment-management,org.dljl.controller,IndexController,0,5,0,0,0,2,0,2,0,2
+appointment-management,org.dljl.controller,AppointmentController,52,251,2,6,17,64,2,17,0,15

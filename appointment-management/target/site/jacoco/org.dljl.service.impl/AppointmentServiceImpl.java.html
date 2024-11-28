@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppointmentServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">appointment-management</a> &gt; <a href="index.source.html" class="el_package">org.dljl.service.impl</a> &gt; <span class="el_source">AppointmentServiceImpl.java</span></div><h1>AppointmentServiceImpl.java</h1><pre class="source lang-java linenums">package org.dljl.service.impl;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import org.dljl.dto.CreateAppointmentDto;
+import org.dljl.dto.CreateBlockDto;
+import org.dljl.dto.CreateRecurringBlockDto;
+import org.dljl.dto.CreateRecurringBlockInOneYearDto;
+import org.dljl.dto.UpdateAppointmentDto;
+import org.dljl.entity.Appointment;
+import org.dljl.mapper.AppointmentMapper;
+import org.dljl.service.AppointmentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/** The type Appointment service. */
+@Service
+<span class="fc" id="L22">public class AppointmentServiceImpl implements AppointmentService {</span>
+
+  @Autowired private AppointmentMapper appointmentMapper;
+
+  @Override
+  public Appointment createAppointment(CreateAppointmentDto appointmentDto) {
+
+<span class="fc" id="L29">    int conflictCount =</span>
+<span class="fc" id="L30">        appointmentMapper.checkCreateTimeConflict(</span>
+<span class="fc" id="L31">            appointmentDto.getProviderId(),</span>
+<span class="fc" id="L32">            appointmentDto.getStartDateTime().truncatedTo(ChronoUnit.SECONDS),</span>
+<span class="fc" id="L33">            appointmentDto.getEndDateTime().truncatedTo(ChronoUnit.SECONDS));</span>
+
+<span class="fc bfc" id="L35" title="All 2 branches covered.">    if (conflictCount != 0) {</span>
+<span class="fc" id="L36">      throw new IllegalArgumentException(</span>
+          &quot;The selected time slot is not available or conflicts with an existing appointment.&quot;);
+    }
+
+<span class="fc" id="L40">    Appointment appointment = new Appointment();</span>
+<span class="fc" id="L41">    appointment.setProviderId(appointmentDto.getProviderId());</span>
+<span class="fc" id="L42">    appointment.setUserId(appointmentDto.getUserId());</span>
+<span class="fc" id="L43">    appointment.setStartDateTime(appointmentDto.getStartDateTime());</span>
+<span class="fc" id="L44">    appointment.setEndDateTime(appointmentDto.getEndDateTime());</span>
+<span class="fc" id="L45">    appointment.setStatus(appointmentDto.getStatus());</span>
+<span class="fc" id="L46">    appointment.setServiceType(appointmentDto.getServiceType());</span>
+<span class="fc" id="L47">    appointment.setComments(appointmentDto.getComments());</span>
+
+<span class="fc" id="L49">    appointmentMapper.createAppointment(appointment);</span>
+<span class="fc" id="L50">    return appointment;</span>
+  }
+
+  @Override
+  public String createBlock(CreateBlockDto blockDto) {
+    // Check if provider_id is null before proceeding
+<span class="fc bfc" id="L56" title="All 2 branches covered.">    if (blockDto.getProviderId() == null) {</span>
+<span class="fc" id="L57">      throw new IllegalArgumentException(&quot;Provider ID Can't be null.&quot;);</span>
+    }
+<span class="fc" id="L59">    Long providerId = blockDto.getProviderId();</span>
+<span class="fc" id="L60">    LocalDateTime startDateTime = blockDto.getStartDateTime();</span>
+<span class="fc" id="L61">    LocalDateTime endDateTime = blockDto.getEndDateTime();</span>
+
+<span class="fc" id="L63">    Appointment appointment = new Appointment();</span>
+<span class="fc" id="L64">    appointment.setProviderId(providerId); // Ensure providerId is set</span>
+<span class="fc" id="L65">    appointment.setUserId(null);</span>
+<span class="fc" id="L66">    appointment.setStartDateTime(startDateTime);</span>
+<span class="fc" id="L67">    appointment.setEndDateTime(endDateTime);</span>
+<span class="fc" id="L68">    appointment.setStatus(&quot;blocked&quot;);</span>
+<span class="fc" id="L69">    appointment.setServiceType(&quot;blocked&quot;);</span>
+<span class="fc" id="L70">    appointment.setComments(&quot;blocked&quot;);</span>
+
+<span class="fc" id="L72">    int conflictCount =</span>
+<span class="fc" id="L73">        appointmentMapper.checkCreateTimeConflict(</span>
+            providerId,
+<span class="fc" id="L75">            startDateTime.truncatedTo(ChronoUnit.SECONDS),</span>
+<span class="fc" id="L76">            endDateTime.truncatedTo(ChronoUnit.SECONDS));</span>
+
+<span class="fc bfc" id="L78" title="All 2 branches covered.">    if (conflictCount != 0) {</span>
+<span class="fc" id="L79">      throw new IllegalArgumentException(</span>
+          &quot;The selected time slot is not available or conflicts with an existing appointment. &quot;
+              + &quot;To block this time, please cancel the conflicting appointment or block.&quot;);
+    }
+<span class="fc" id="L83">    appointmentMapper.createAppointment(appointment);</span>
+
+<span class="fc" id="L85">    return &quot;Block Created Successfully&quot;;</span>
+  }
+
+  @Override
+  public String createRecurringBlockInOneYear(CreateRecurringBlockInOneYearDto blockDto) {
+
+<span class="fc bfc" id="L91" title="All 2 branches covered.">    if (blockDto.getProviderId() == null) {</span>
+<span class="fc" id="L92">      throw new IllegalArgumentException(&quot;Provider ID Can't be null.&quot;);</span>
+    }
+
+<span class="fc" id="L95">    Long providerId = blockDto.getProviderId();</span>
+<span class="fc" id="L96">    LocalTime startTime = blockDto.getStartTime();</span>
+<span class="fc" id="L97">    LocalTime endTime = blockDto.getEndTime();</span>
+<span class="fc" id="L98">    LocalDate startDate = LocalDate.now();</span>
+<span class="fc" id="L99">    LocalDate endDate = startDate.plusYears(1);</span>
+
+<span class="fc" id="L101">    StringBuilder conflictDates = new StringBuilder();</span>
+<span class="fc" id="L102">    boolean hasConflict = false;</span>
+
+    // Step 1: Check for conflicts across the entire year
+<span class="fc bfc" id="L105" title="All 2 branches covered.">    for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {</span>
+<span class="fc" id="L106">      LocalDateTime startDateTime = LocalDateTime.of(date, startTime);</span>
+<span class="fc" id="L107">      LocalDateTime endDateTime = LocalDateTime.of(date, endTime);</span>
+
+<span class="fc" id="L109">      CreateBlockDto singleDayBlockDto = new CreateBlockDto();</span>
+<span class="fc" id="L110">      singleDayBlockDto.setProviderId(providerId);</span>
+<span class="fc" id="L111">      singleDayBlockDto.setStartDateTime(startDateTime);</span>
+<span class="fc" id="L112">      singleDayBlockDto.setEndDateTime(endDateTime);</span>
+
+      try {
+<span class="fc" id="L115">        createBlock(singleDayBlockDto);</span>
+<span class="fc" id="L116">      } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L117">        hasConflict = true;</span>
+<span class="fc" id="L118">        conflictDates.append(date).append(&quot;\n&quot;);</span>
+<span class="fc" id="L119">      }</span>
+    }
+
+    // Step 2: Return result based on whether conflicts were found
+<span class="fc bfc" id="L123" title="All 2 branches covered.">    if (hasConflict) {</span>
+<span class="fc" id="L124">      return &quot;Conflicts found on the following dates: \n&quot; + conflictDates.toString();</span>
+    } else {
+<span class="fc" id="L126">      return &quot;Yearly recurring block created successfully.&quot;;</span>
+    }
+  }
+
+  @Override
+  public Appointment updateAppointment(UpdateAppointmentDto appointmentDto) {
+
+<span class="fc bfc" id="L133" title="All 2 branches covered.">    if (appointmentDto.getAppointmentId() == null) {</span>
+<span class="fc" id="L134">      throw new IllegalArgumentException(&quot;Appointment ID is required for updating an appointment.&quot;);</span>
+    }
+<span class="pc bpc" id="L136" title="1 of 4 branches missed.">    if (appointmentDto.getStartDateTime() != null || appointmentDto.getEndDateTime() != null) {</span>
+<span class="fc" id="L137">      Appointment originalAppointment = getAppointment(appointmentDto.getAppointmentId());</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">      if (appointmentDto.getStartDateTime() == null) {</span>
+<span class="nc" id="L139">        appointmentDto.setStartDateTime(originalAppointment.getStartDateTime());</span>
+      }
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">      if (appointmentDto.getEndDateTime() == null) {</span>
+<span class="nc" id="L142">        appointmentDto.setEndDateTime(originalAppointment.getEndDateTime());</span>
+      }
+
+<span class="fc" id="L145">      int conflictCount =</span>
+<span class="fc" id="L146">          appointmentMapper.checkUpdateTimeConflict(</span>
+<span class="fc" id="L147">              appointmentDto.getAppointmentId(),</span>
+<span class="fc" id="L148">              appointmentDto.getStartDateTime().truncatedTo(ChronoUnit.SECONDS),</span>
+<span class="fc" id="L149">              appointmentDto.getEndDateTime().truncatedTo(ChronoUnit.SECONDS));</span>
+
+<span class="fc bfc" id="L151" title="All 2 branches covered.">      if (conflictCount != 0) {</span>
+<span class="fc" id="L152">        throw new IllegalArgumentException(</span>
+            &quot;The updated time slot conflicts with an existing appointment or blocked time.&quot;);
+      }
+    }
+
+<span class="fc" id="L157">    appointmentMapper.updateAppointment(appointmentDto);</span>
+
+<span class="fc" id="L159">    return appointmentMapper.getAppointment(appointmentDto.getAppointmentId());</span>
+  }
+
+  @Override
+  public Appointment getAppointment(Long id) {
+<span class="fc" id="L164">    return appointmentMapper.getAppointment(id);</span>
+  }
+
+  @Override
+  public List&lt;Appointment&gt; getAppointmentsByProviderId(Long providerId) {
+<span class="fc" id="L169">    return appointmentMapper.getAppointmentsByProviderId(providerId);</span>
+  }
+
+  @Override
+  public List&lt;Appointment&gt; getAppointmentsByProviderAndDate(
+      Long providerId, LocalDate appointmentDate) {
+<span class="fc" id="L175">    return appointmentMapper.getAppointmentsByProviderAndDate(providerId, appointmentDate);</span>
+  }
+
+  @Override
+  public boolean cancelAppointment(Long id) {
+    // Call the mapper to cancel the appointment
+<span class="fc" id="L181">    int rowsAffected = appointmentMapper.cancelAppointment(id);</span>
+
+    // If rowsAffected is 1, the appointment was successfully cancelled; otherwise, it was not found
+<span class="fc bfc" id="L184" title="All 2 branches covered.">    return rowsAffected == 1;</span>
+  }
+
+  @Override
+  public boolean deleteBlock(Long id) {
+    // Call the mapper to cancel the appointment
+<span class="fc" id="L190">    int rowsAffected = appointmentMapper.deleteBlock(id);</span>
+
+    // If rowsAffected is 1, the appointment was successfully cancelled; otherwise, it was not found
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">    return rowsAffected == 1;</span>
+  }
+
+  @Override
+  public List&lt;List&lt;LocalDateTime&gt;&gt; getAvailableTimeIntervals(Long providerId, LocalDate date) {
+
+<span class="fc" id="L199">    List&lt;Appointment&gt; appointments =</span>
+<span class="fc" id="L200">        appointmentMapper.getAppointmentsByProviderAndDate(providerId, date);</span>
+
+<span class="fc" id="L202">    LocalDateTime dayStart = date.atStartOfDay();</span>
+<span class="fc" id="L203">    LocalDateTime dayEnd = date.atTime(LocalTime.MAX);</span>
+
+<span class="fc" id="L205">    List&lt;List&lt;LocalDateTime&gt;&gt; availableTimeIntervals = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L207" title="All 2 branches covered.">    if (appointments.isEmpty()) {</span>
+<span class="fc" id="L208">      List&lt;LocalDateTime&gt; fullDay = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L209">      fullDay.add(dayStart);</span>
+<span class="fc" id="L210">      fullDay.add(dayEnd);</span>
+<span class="fc" id="L211">      availableTimeIntervals.add(fullDay);</span>
+<span class="fc" id="L212">      return availableTimeIntervals;</span>
+    }
+
+<span class="fc" id="L215">    appointments.sort((a, b) -&gt; a.getStartDateTime().compareTo(b.getStartDateTime()));</span>
+
+<span class="fc" id="L217">    LocalDateTime currentStart = dayStart;</span>
+
+<span class="fc bfc" id="L219" title="All 2 branches covered.">    for (Appointment appointment : appointments) {</span>
+<span class="fc" id="L220">      LocalDateTime appointmentStart = appointment.getStartDateTime();</span>
+<span class="fc" id="L221">      LocalDateTime appointmentEnd = appointment.getEndDateTime();</span>
+
+<span class="fc bfc" id="L223" title="All 2 branches covered.">      if (currentStart.isBefore(appointmentStart)) {</span>
+<span class="fc" id="L224">        List&lt;LocalDateTime&gt; availableInterval = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L225">        availableInterval.add(currentStart);</span>
+<span class="fc" id="L226">        availableInterval.add(appointmentStart);</span>
+<span class="fc" id="L227">        availableTimeIntervals.add(availableInterval);</span>
+      }
+
+<span class="pc bpc" id="L230" title="1 of 2 branches missed.">      currentStart = appointmentEnd.isAfter(currentStart) ? appointmentEnd : currentStart;</span>
+<span class="fc" id="L231">    }</span>
+
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">    if (currentStart.isBefore(dayEnd)) {</span>
+<span class="fc" id="L234">      List&lt;LocalDateTime&gt; availableInterval = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L235">      availableInterval.add(currentStart);</span>
+<span class="fc" id="L236">      availableInterval.add(dayEnd);</span>
+<span class="fc" id="L237">      availableTimeIntervals.add(availableInterval);</span>
+    }
+
+<span class="fc" id="L240">    return availableTimeIntervals;</span>
+  }
+
+  @Override
+  public List&lt;Appointment&gt; getAppointmentHistory(Long providerId, Long userId) {
+<span class="fc" id="L245">    return appointmentMapper.findAppointmentsByProviderAndUser(providerId, userId);</span>
+  }
+
+  @Override
+  public List&lt;Appointment&gt; getAppointmentsWithinDateRange(Long providerId, 
+      LocalDate startDate, LocalDate endDate) {
+<span class="fc bfc" id="L251" title="All 2 branches covered.">    if (providerId == null) {</span>
+<span class="fc" id="L252">      throw new IllegalArgumentException(&quot;Provider ID cannot be null.&quot;);</span>
+    }
+<span class="pc bpc" id="L254" title="1 of 4 branches missed.">    if (startDate == null || endDate == null) {</span>
+<span class="fc" id="L255">      throw new IllegalArgumentException(&quot;Start date and end date cannot be null.&quot;);</span>
+    }
+<span class="fc bfc" id="L257" title="All 2 branches covered.">    if (startDate.isAfter(endDate)) {</span>
+<span class="fc" id="L258">      throw new IllegalArgumentException(&quot;Start date cannot be after end date.&quot;);</span>
+    }
+
+<span class="fc" id="L261">    return appointmentMapper.getAppointmentsWithinDateRange(providerId, startDate, endDate);</span>
+  }
+
+  @Override
+  public String createRecurringBlock(CreateRecurringBlockDto blockDto) {
+
+<span class="fc bfc" id="L267" title="All 2 branches covered.">    if (blockDto.getProviderId() == null) {</span>
+<span class="fc" id="L268">      throw new IllegalArgumentException(&quot;Provider ID Can't be null.&quot;);</span>
+    }
+
+<span class="fc" id="L271">    Long providerId = blockDto.getProviderId();</span>
+<span class="fc" id="L272">    LocalTime startTime = blockDto.getStartTime();</span>
+<span class="fc" id="L273">    LocalTime endTime = blockDto.getEndTime();</span>
+<span class="fc" id="L274">    LocalDate startDate = blockDto.getStartDate();</span>
+<span class="fc" id="L275">    LocalDate endDate = blockDto.getEndDate();</span>
+
+<span class="fc" id="L277">    StringBuilder conflictDates = new StringBuilder();</span>
+<span class="fc" id="L278">    boolean hasConflict = false;</span>
+
+    // Step 1: Check for conflicts from start date to end date
+<span class="fc bfc" id="L281" title="All 2 branches covered.">    for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {</span>
+<span class="fc" id="L282">      LocalDateTime startDateTime = LocalDateTime.of(date, startTime);</span>
+<span class="fc" id="L283">      LocalDateTime endDateTime = LocalDateTime.of(date, endTime);</span>
+
+<span class="fc" id="L285">      CreateBlockDto singleDayBlockDto = new CreateBlockDto();</span>
+<span class="fc" id="L286">      singleDayBlockDto.setProviderId(providerId);</span>
+<span class="fc" id="L287">      singleDayBlockDto.setStartDateTime(startDateTime);</span>
+<span class="fc" id="L288">      singleDayBlockDto.setEndDateTime(endDateTime);</span>
+
+      try {
+<span class="fc" id="L291">        createBlock(singleDayBlockDto);</span>
+<span class="fc" id="L292">      } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L293">        hasConflict = true;</span>
+<span class="fc" id="L294">        conflictDates.append(date).append(&quot;\n&quot;);</span>
+<span class="fc" id="L295">      }</span>
+    }
+
+    // Step 2: Return result based on whether conflicts were found
+<span class="fc bfc" id="L299" title="All 2 branches covered.">    if (hasConflict) {</span>
+<span class="fc" id="L300">      return &quot;Conflicts found on the following dates: \n&quot; + conflictDates.toString();</span>
+    } else {
+<span class="fc" id="L302">      return &quot;Recurring block created successfully from &quot; </span>
+<span class="fc" id="L303">          + startDate.toString() + &quot; to &quot; + endDate.toString();</span>
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

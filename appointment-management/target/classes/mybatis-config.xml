@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <typeAliases>
+        <!-- Specify the package where your entity classes are located -->
+        <package name="org.dljl.entity"/>
+    </typeAliases>
+    <mappers>
+        <!-- Specify the package where your MyBatis mapper interfaces are located -->
+        <package name="org.dljl.mapper"/>
+    </mappers>
+</configuration>

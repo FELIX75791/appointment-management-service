@@ -130,8 +130,13 @@ public class AppointmentServiceImpl implements AppointmentService {
   @Override
   public Appointment updateAppointment(UpdateAppointmentDto appointmentDto) {
 
+
     if (appointmentDto.getAppointmentId() == null) {
       throw new IllegalArgumentException("Appointment ID is required for updating an appointment.");
+    }
+    Appointment existingAppointment = appointmentMapper.getAppointment(appointmentDto.getAppointmentId());
+    if (existingAppointment == null) {
+      throw new IllegalArgumentException("Appointment ID does not exist.");
     }
     if (appointmentDto.getStartDateTime() != null || appointmentDto.getEndDateTime() != null) {
       Appointment originalAppointment = getAppointment(appointmentDto.getAppointmentId());
