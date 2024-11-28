@@ -66,6 +66,23 @@ public class AppointmentControllerIt {
           + "from 2024-01-01 to 2024-12-31"));
   }
 
+  @Test
+  void testUpdateNonExistentAppointment() throws Exception {
+    String updateJson = """
+            {
+                "appointmentId": 999,
+                "status": "COMPLETED",
+                "comments": "Updated comments for non-existent appointment"
+            }
+        """;
+
+    mockMvc.perform(put("/appointments/update")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(updateJson))
+      .andExpect(status().isBadRequest())
+        .andExpect(content().string("Appointment ID does not exist."));
+  }
+
   /**
    * Test getting available time intervals for a provider.
    */
