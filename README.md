@@ -31,7 +31,9 @@ In order to build and use our service, you must install the following dependenci
 We provided unit tests and integration tests under the directory src/test
 You are welcome to test our end points after running an instance. We recommend using Postman or Bruno
 
-
+## Integration Test
+We provided integration test for our latest finalized service in our src/test directory. In the integration test, we firstly test our feature of getting appointments with a date range. We also created a recurring blocks for one provider. On top of it, we check the available time intervals after the creation of recurring blocks. We then test the feature of getting appointment history to correspond to what we create so far. we later test the situatuon of cancellation after we deleted an appointment. Finally, we test our core function of conflict management during appointment creation and our feature of updating an appointment.
+In the integration test, we succssfully test our api endpoint and  our class functions with a database we mocked for testing.
 
 ## Running a Cloud Based Instance
 We have deployed a cloud instance of our service on Google Cloud Platform. To access our service on cloud, go to https://coms4156-436119.ue.r.appspot.com 
