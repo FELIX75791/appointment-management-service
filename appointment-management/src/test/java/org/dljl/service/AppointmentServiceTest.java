@@ -318,39 +318,77 @@ public class AppointmentServiceTest {
 
   @Test
   void testUpdateAppointment_conflict_throwsException() {
+    // Arrange
     UpdateAppointmentDto updateDto = new UpdateAppointmentDto();
     updateDto.setAppointmentId(1L);
     updateDto.setStartDateTime(LocalDateTime.of(2024, 10, 16, 10, 0));
     updateDto.setEndDateTime(LocalDateTime.of(2024, 10, 16, 11, 0));
 
+    Appointment existingAppointment = new Appointment();
+    existingAppointment.setAppointmentId(1L);
+    existingAppointment.setStartDateTime(LocalDateTime.of(2024, 10, 16, 9, 0));
+    existingAppointment.setEndDateTime(LocalDateTime.of(2024, 10, 16, 10, 0));
+
+    when(appointmentMapper.getAppointment(1L)).thenReturn(existingAppointment);
     when(appointmentMapper.checkUpdateTimeConflict(anyLong(), any(), any())).thenReturn(1);
 
+    // Act & Assert
     IllegalArgumentException exception = assertThrows(
         IllegalArgumentException.class,
         () -> appointmentService.updateAppointment(updateDto)
     );
 
-    assertEquals("The updated time slot conflicts with an existing appointment or blocked time.",
-        exception.getMessage());
+    assertEquals(
+        "The updated time slot conflicts with an existing appointment or blocked time.",
+        exception.getMessage()
+    );
+  }
+
+  @Test
+  void testUpdateAppointment_appointmentDoesNotExist() {
+    // Arrange
+    UpdateAppointmentDto updateDto = new UpdateAppointmentDto();
+    updateDto.setAppointmentId(99L); // Non-existent appointment ID
+    updateDto.setStartDateTime(LocalDateTime.of(2024, 10, 15, 10, 0));
+    updateDto.setEndDateTime(LocalDateTime.of(2024, 10, 15, 11, 0));
+
+    when(appointmentMapper.getAppointment(99L)).thenReturn(null); // Mock no appointment found
+
+    // Act & Assert
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+      appointmentService.updateAppointment(updateDto);
+    });
+
+    assertEquals("Appointment ID does not exist.", exception.getMessage());
   }
 
   @Test
   void testUpdateAppointment_throwsIllegalArgumentException() {
+    // Arrange
     UpdateAppointmentDto updateDto = new UpdateAppointmentDto();
     updateDto.setAppointmentId(1L);
     updateDto.setStartDateTime(LocalDateTime.of(2024, 10, 15, 10, 0));
     updateDto.setEndDateTime(LocalDateTime.of(2024, 10, 15, 11, 0));
 
+    Appointment existingAppointment = new Appointment();
+    existingAppointment.setAppointmentId(1L);
+    existingAppointment.setStartDateTime(LocalDateTime.of(2024, 10, 15, 9, 0));
+    existingAppointment.setEndDateTime(LocalDateTime.of(2024, 10, 15, 10, 0));
+
+    when(appointmentMapper.getAppointment(1L)).thenReturn(existingAppointment);
     when(appointmentMapper.checkUpdateTimeConflict(anyLong(), any(), any())).thenReturn(1);
 
+    // Act & Assert
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
       appointmentService.updateAppointment(updateDto);
     });
 
     assertEquals(
         "The updated time slot conflicts with an existing appointment or blocked time.",
-        exception.getMessage());
+        exception.getMessage()
+    );
   }
+
 
   @Test
   void testCancelAppointment_NonExistent() {
