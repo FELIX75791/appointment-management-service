@@ -130,6 +130,7 @@ public class AppointmentServiceImpl implements AppointmentService {
   @Override
   public Appointment updateAppointment(UpdateAppointmentDto appointmentDto) {
 
+
     if (appointmentDto.getAppointmentId() == null) {
       throw new IllegalArgumentException("Appointment ID is required for updating an appointment.");
     }

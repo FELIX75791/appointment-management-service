@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AppointmentController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">appointment-management</a> &gt; <a href="index.source.html" class="el_package">org.dljl.controller</a> &gt; <span class="el_source">AppointmentController.java</span></div><h1>AppointmentController.java</h1><pre class="source lang-java linenums">package org.dljl.controller;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.dljl.dto.CreateAppointmentDto;
+import org.dljl.dto.CreateBlockDto;
+import org.dljl.dto.CreateRecurringBlockDto;
+import org.dljl.dto.CreateRecurringBlockInOneYearDto;
+import org.dljl.dto.UpdateAppointmentDto;
+import org.dljl.entity.Appointment;
+import org.dljl.service.AppointmentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+/** The type Appointment controller. */
+@RestController
+@RequestMapping(&quot;/appointments&quot;)
+<span class="fc" id="L34">public class AppointmentController {</span>
+
+  @Autowired private AppointmentService appointmentService;
+
+  /**
+   * Create appointment response entity.
+   *
+   * @param appointmentDto the appointment dto
+   * @return the response entity
+   */
+  // Create a new appointment
+  @PostMapping(&quot;/createAppointment&quot;)
+  public ResponseEntity&lt;?&gt; createAppointment(@RequestBody CreateAppointmentDto appointmentDto) {
+    try {
+<span class="fc" id="L48">      Appointment createdAppointment = appointmentService.createAppointment(appointmentDto);</span>
+<span class="fc" id="L49">      return new ResponseEntity&lt;&gt;(createdAppointment, HttpStatus.CREATED);</span>
+<span class="fc" id="L50">    } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L51">      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());</span>
+<span class="fc" id="L52">    } catch (Exception e) {</span>
+<span class="fc" id="L53">      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="fc" id="L54">          .body(&quot;An unexpected error occurred: &quot; + e.getMessage());</span>
+    }
+  }
+
+  /**
+   * Create block response entity.
+   *
+   * @param blockDto the block dto
+   * @return the response entity
+   */
+  // Create recurring block in one year
+  @PostMapping(&quot;/createBlock&quot;)
+  public ResponseEntity&lt;String&gt; createBlock(@RequestBody CreateBlockDto blockDto) {
+    try {
+<span class="fc" id="L68">      String result = appointmentService.createBlock(blockDto);</span>
+<span class="fc" id="L69">      return new ResponseEntity&lt;&gt;(result, HttpStatus.CREATED);</span>
+<span class="fc" id="L70">    } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L71">      return new ResponseEntity&lt;&gt;(e.getMessage(), HttpStatus.BAD_REQUEST);</span>
+<span class="nc" id="L72">    } catch (Exception e) {</span>
+<span class="nc" id="L73">      return new ResponseEntity&lt;&gt;(</span>
+<span class="nc" id="L74">          &quot;An unexpected error occurred: &quot; + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);</span>
+    }
+  }
+
+  /**
+   * Create recurring block in one year response entity.
+   *
+   * @param blockDto the block dto
+   * @return the response entity
+   */
+  // Create a recurring block for one year
+  @PostMapping(&quot;/createRecurringBlockInOneYear&quot;)
+  public ResponseEntity&lt;String&gt; createRecurringBlockInOneYear(
+      @RequestBody CreateRecurringBlockInOneYearDto blockDto) {
+    try {
+<span class="fc" id="L89">      String result = appointmentService.createRecurringBlockInOneYear(blockDto);</span>
+<span class="fc" id="L90">      return new ResponseEntity&lt;&gt;(result, HttpStatus.CREATED);</span>
+<span class="nc" id="L91">    } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L92">      return new ResponseEntity&lt;&gt;(e.getMessage(), HttpStatus.BAD_REQUEST);</span>
+<span class="nc" id="L93">    } catch (Exception e) {</span>
+<span class="nc" id="L94">      return new ResponseEntity&lt;&gt;(</span>
+<span class="nc" id="L95">          &quot;An unexpected error occurred: &quot; + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);</span>
+    }
+  }
+
+  /**
+   * Update appointment response entity.
+   *
+   * @param appointmentDto the appointment dto
+   * @return the response entity
+   */
+  // Update an appointment
+  @PutMapping(&quot;/update&quot;)
+  public ResponseEntity&lt;?&gt; updateAppointment(@RequestBody UpdateAppointmentDto appointmentDto) {
+    try {
+<span class="fc" id="L109">      Appointment updatedAppointment = appointmentService.updateAppointment(appointmentDto);</span>
+<span class="fc" id="L110">      return ResponseEntity.ok(updatedAppointment);</span>
+<span class="fc" id="L111">    } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L112">      return ResponseEntity.badRequest().body(e.getMessage());</span>
+    }
+  }
+
+  /**
+   * Cancel appointment response entity.
+   *
+   * @param id the id
+   * @return the response entity
+   */
+  // Cancel an appointment
+  @PutMapping(&quot;/cancel/{id}&quot;)
+  public ResponseEntity&lt;String&gt; cancelAppointment(@PathVariable Long id) {
+<span class="fc" id="L125">    boolean isCancelled = appointmentService.cancelAppointment(id);</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">    if (isCancelled) {</span>
+<span class="fc" id="L127">      return ResponseEntity.ok(&quot;Appointment cancelled successfully.&quot;);</span>
+    } else {
+<span class="fc" id="L129">      return ResponseEntity.badRequest().body(&quot;Appointment not found or already cancelled.&quot;);</span>
+    }
+  }
+
+  /**
+   * Delete a block entity. This will permanently delete a block from database to avoid unnecessary
+   * storage usage. This can potentially be used on appointment as well but do so will result in
+   * loss of user history. We did not enforce this API to be used on block only to give developer
+   * full control, but use carefully.
+   *
+   * @param id the block id
+   * @return the response entity
+   */
+  // Cancel an appointment
+  @DeleteMapping(&quot;/deleteBlock/{id}&quot;)
+  public ResponseEntity&lt;String&gt; deleteBlock(@PathVariable Long id) {
+<span class="fc" id="L145">    boolean isCancelled = appointmentService.deleteBlock(id);</span>
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">    if (isCancelled) {</span>
+<span class="nc" id="L147">      return ResponseEntity.ok(&quot;Block cancelled successfully.&quot;);</span>
+    } else {
+<span class="fc" id="L149">      return ResponseEntity.badRequest().body(&quot;Block not found or already deleted.&quot;);</span>
+    }
+  }
+
+  /**
+   * Gets appointment.
+   *
+   * @param id the id
+   * @return the appointment
+   */
+  // Get an appointment by ID
+  @GetMapping(&quot;/{id}&quot;)
+  public ResponseEntity&lt;Appointment&gt; getAppointment(@PathVariable Long id) {
+<span class="fc" id="L162">    Appointment appointment = appointmentService.getAppointment(id);</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">    if (appointment != null) {</span>
+<span class="nc" id="L164">      return ResponseEntity.ok(appointment);</span>
+    } else {
+<span class="fc" id="L166">      return ResponseEntity.notFound().build();</span>
+    }
+  }
+
+  /**
+   * Gets appointments by provider id.
+   *
+   * @param providerId the provider id
+   * @return the appointments by provider id
+   */
+  // Get appointments by provider ID
+  @GetMapping(&quot;/provider/{providerId}&quot;)
+  public ResponseEntity&lt;List&lt;Appointment&gt;&gt; getAppointmentsByProviderId(
+      @PathVariable Long providerId) {
+<span class="fc" id="L180">    List&lt;Appointment&gt; appointments = appointmentService.getAppointmentsByProviderId(providerId);</span>
+<span class="fc" id="L181">    return ResponseEntity.ok(appointments);</span>
+  }
+
+  /**
+   * Gets appointments by provider and date.
+   *
+   * @param providerId the provider id
+   * @param appointmentDate the appointment date
+   * @return the appointments by provider and date
+   */
+  // Get appointments by provider ID and Date
+  @GetMapping(&quot;/provider/{providerId}/date/{appointmentDate}&quot;)
+  public ResponseEntity&lt;List&lt;Appointment&gt;&gt; getAppointmentsByProviderAndDate(
+      @PathVariable(&quot;providerId&quot;) Long providerId,
+      @PathVariable(&quot;appointmentDate&quot;) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          LocalDate appointmentDate) {
+<span class="fc" id="L197">    List&lt;Appointment&gt; appointments =</span>
+<span class="fc" id="L198">        appointmentService.getAppointmentsByProviderAndDate(providerId, appointmentDate);</span>
+<span class="fc" id="L199">    return ResponseEntity.ok(appointments);</span>
+  }
+
+  /**
+   * Gets available time intervals.
+   *
+   * @param providerId the provider id
+   * @param appointmentDate the appointment date
+   * @return the available time intervals
+   */
+  // Get all available time intervals in a day by provider ID and Date
+  @GetMapping(&quot;/provider/{providerId}/available/date/{appointmentDate}&quot;)
+  public ResponseEntity&lt;List&lt;List&lt;LocalDateTime&gt;&gt;&gt; getAvailableTimeIntervals(
+      @PathVariable(&quot;providerId&quot;) Long providerId,
+      @PathVariable(&quot;appointmentDate&quot;) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+          LocalDate appointmentDate) {
+<span class="fc" id="L215">    List&lt;List&lt;LocalDateTime&gt;&gt; availableTimeIntervals =</span>
+<span class="fc" id="L216">        appointmentService.getAvailableTimeIntervals(providerId, appointmentDate);</span>
+<span class="fc" id="L217">    return ResponseEntity.ok(availableTimeIntervals);</span>
+  }
+
+  /**
+   * Gets appointment history.
+   *
+   * @param providerId the provider id
+   * @param userId the user id
+   * @return the appointment history
+   */
+  @GetMapping(&quot;/history&quot;)
+  public ResponseEntity&lt;List&lt;Map&lt;String, Object&gt;&gt;&gt; getAppointmentHistory(
+      @RequestParam(&quot;provider_id&quot;) Long providerId, @RequestParam(&quot;user_id&quot;) Long userId) {
+
+<span class="fc" id="L231">    List&lt;Appointment&gt; appointmentHistory =</span>
+<span class="fc" id="L232">        appointmentService.getAppointmentHistory(providerId, userId);</span>
+
+<span class="fc bfc" id="L234" title="All 2 branches covered.">    if (appointmentHistory.isEmpty()) {</span>
+      // Add a custom message to the response list
+<span class="fc" id="L236">      Map&lt;String, Object&gt; message = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L237">      message.put(&quot;message&quot;, &quot;No appointment history found for the given provider and user.&quot;);</span>
+<span class="fc" id="L238">      List&lt;Map&lt;String, Object&gt;&gt; response = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L239">      response.add(message);</span>
+<span class="fc" id="L240">      return new ResponseEntity&lt;&gt;(response, HttpStatus.OK);</span>
+    }
+
+    // Customize the output
+<span class="fc" id="L244">    List&lt;Map&lt;String, Object&gt;&gt; response =</span>
+<span class="fc" id="L245">        appointmentHistory.stream()</span>
+<span class="fc" id="L246">            .map(</span>
+                appointment -&gt; {
+<span class="fc" id="L248">                  Map&lt;String, Object&gt; appointmentDetails = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L249">                  appointmentDetails.put(&quot;Appointment ID&quot;, appointment.getAppointmentId());</span>
+<span class="fc" id="L250">                  appointmentDetails.put(&quot;Start Date and Time&quot;, appointment.getStartDateTime());</span>
+<span class="fc" id="L251">                  appointmentDetails.put(&quot;End Date and Time&quot;, appointment.getEndDateTime());</span>
+<span class="fc" id="L252">                  appointmentDetails.put(&quot;Status&quot;, appointment.getStatus());</span>
+<span class="fc" id="L253">                  appointmentDetails.put(&quot;Service Type&quot;, appointment.getServiceType());</span>
+<span class="fc" id="L254">                  appointmentDetails.put(&quot;Comments&quot;, appointment.getComments());</span>
+<span class="fc" id="L255">                  return appointmentDetails;</span>
+                })
+<span class="fc" id="L257">            .collect(Collectors.toList());</span>
+
+<span class="fc" id="L259">    return new ResponseEntity&lt;&gt;(response, HttpStatus.OK);</span>
+  }
+
+  /**
+   * Gets appointments within a date range for a provider.
+   *
+   * @param providerId the provider id
+   * @param startDate the start date of the range
+   * @param endDate the end date of the range
+   * @return the appointments within the date range
+   */
+  @GetMapping(&quot;/provider/{providerId}/appointments&quot;)
+  public ResponseEntity&lt;List&lt;Appointment&gt;&gt; getAppointmentsWithinDateRange(
+      @PathVariable Long providerId,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+    try {
+<span class="fc" id="L276">      List&lt;Appointment&gt; appointments =</span>
+<span class="fc" id="L277">          appointmentService.getAppointmentsWithinDateRange(providerId, startDate, endDate);</span>
+<span class="fc" id="L278">      return ResponseEntity.ok(appointments);</span>
+<span class="nc" id="L279">    } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L280">      return ResponseEntity.badRequest().body(null);</span>
+<span class="nc" id="L281">    } catch (Exception e) {</span>
+<span class="nc" id="L282">      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);</span>
+    }
+  }
+
+  /**
+   * Create recurring block in a period of time response entity.
+   *
+   * @param blockDto the block dto
+   * @return the response entity
+   */
+  // Create a recurring block from start date to end date
+  @PostMapping(&quot;/createRecurringBlock&quot;)
+  public ResponseEntity&lt;String&gt; createRecurringBlock(
+      @RequestBody CreateRecurringBlockDto blockDto) {
+    try {
+<span class="fc" id="L297">      String result = appointmentService.createRecurringBlock(blockDto);</span>
+<span class="fc" id="L298">      return new ResponseEntity&lt;&gt;(result, HttpStatus.CREATED);</span>
+<span class="fc" id="L299">    } catch (IllegalArgumentException e) {</span>
+<span class="fc" id="L300">      return new ResponseEntity&lt;&gt;(e.getMessage(), HttpStatus.BAD_REQUEST);</span>
+<span class="nc" id="L301">    } catch (Exception e) {</span>
+<span class="nc" id="L302">      return new ResponseEntity&lt;&gt;(</span>
+<span class="nc" id="L303">          &quot;An unexpected error occurred: &quot; + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);</span>
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

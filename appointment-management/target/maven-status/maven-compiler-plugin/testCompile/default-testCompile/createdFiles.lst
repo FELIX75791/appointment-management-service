@@ -1,0 +1,5 @@
+org\dljl\controller\ClientControllerTest.class
+org\dljl\controller\AppointmentControllerIT.class
+org\dljl\controller\AppointmentControllerTest.class
+org\dljl\controller\IndexControllerTest.class
+org\dljl\service\AppointmentServiceTest.class
