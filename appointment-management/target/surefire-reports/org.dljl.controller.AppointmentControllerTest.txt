@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: org.dljl.controller.AppointmentControllerTest
 -------------------------------------------------------------------------------
-Tests run: 32, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.155 s - in org.dljl.controller.AppointmentControllerTest
+Tests run: 32, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.901 s - in org.dljl.controller.AppointmentControllerTest

@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: org.dljl.controller.ClientControllerTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.624 s - in org.dljl.controller.ClientControllerTest
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.516 s - in org.dljl.controller.ClientControllerTest
