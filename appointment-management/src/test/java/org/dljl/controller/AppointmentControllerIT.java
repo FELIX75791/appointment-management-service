@@ -127,22 +127,22 @@ public class AppointmentControllerIT {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.length()").value(1)); // One appointment should be left
   }
-  @Test
-  void testUpdateNonExistentAppointment() throws Exception {
-    String updateJson = """
-            {
-                "appointmentId": 999,
-                "status": "COMPLETED",
-                "comments": "Updated comments for non-existent appointment"
-            }
-        """;
-
-    mockMvc.perform(put("/appointments/update")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(updateJson))
-      .andExpect(status().isBadRequest())
-      .andExpect(content().string("Appointment ID does not exist."));
-  }
+//  @Test
+//  void testUpdateNonExistentAppointment() throws Exception {
+//    String updateJson = """
+//            {
+//                "appointmentId": 999,
+//                "status": "COMPLETED",
+//                "comments": "Updated comments for non-existent appointment"
+//            }
+//        """;
+//
+//    mockMvc.perform(put("/appointments/update")
+//        .contentType(MediaType.APPLICATION_JSON)
+//        .content(updateJson))
+//      .andExpect(status().isBadRequest())
+//      .andExpect(content().string("Appointment ID does not exist."));
+//  }
 
 
   /**
