@@ -2,6 +2,11 @@
 
 Welcome to our Appointment-Management-Service! This is a team Project for our team DLJL. Our members are Ziyue Jin, Ken Deng, Jiacheng Liu, Yang Li.
 
+## Appointment-Management-App
+
+We also design a client application which use our service: Doctor Appointment Management App. It is designed to help doctors efficiently manage appointments with their patients. The app provides robust features for scheduling, managing availability, retrieving patient and provider data, and managing recurring events. It streamlines administrative tasks, allowing doctors to focus on patient care.
+To see detailed documentation of our app, go to https://github.com/FELIX75791/appointment-management-app 
+
 ## Building and Running a Local Instance
 
 In order to build and use our service, you must install the following dependencies:
@@ -23,7 +28,7 @@ In order to build and use our service, you must install the following dependenci
 8. **Getting Code Coverage Report** : You can check code coverage report by running <code>mvn jacoco:report</code>
 
 ## Running test
-We provided unit tests under the directory src/test
+We provided unit tests and integration tests under the directory src/test
 You are welcome to test our end points after running an instance. We recommend using Postman or Bruno
 
 
